@@ -8,8 +8,8 @@ import android.graphics.Canvas;
  */
 public class Background {
     private Bitmap image;
-    private int x, y, dx;
-    private int bob;
+    private double x, y, dx;
+    private double bob;
     private int maxBob, bobOffset;
 
     public Background(Bitmap res) {
@@ -18,14 +18,14 @@ public class Background {
         bobOffset = 50;
     }
 
-    public void update(){
-        x += dx;
+    public void update(double secondsPerFrame){
+        x += dx * secondsPerFrame;
         if (x < -GamePanel.WIDTH) {
             x = 0;
         }
-        bob ++;
-        if (bob == maxBob) {
-            bob = 0;
+        bob += 30 * secondsPerFrame;
+        if (bob >= maxBob) {
+            bob -= maxBob;
         }
         float t = (float)bob / maxBob;
         y = (int)(Math.sin(t * Math.PI * 2) * bobOffset);
@@ -33,9 +33,9 @@ public class Background {
 
 
     public void draw(Canvas canvas ) {
-        canvas.drawBitmap(image, x, y, null);
+        canvas.drawBitmap(image, (int)x, (int)y, null);
         if (x < 0) {
-            canvas.drawBitmap(image, x + GamePanel.WIDTH, y, null);
+            canvas.drawBitmap(image, (int)x + GamePanel.WIDTH, (int)y, null);
         }
     }
 
