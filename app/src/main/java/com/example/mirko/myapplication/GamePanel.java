@@ -38,7 +38,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         if (background == null) {
             System.out.println("Create background");
-            background = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.bg));
+            background = new Background(
+                    BitmapFactory.decodeResource(getResources(), R.drawable.bg),
+                    BitmapFactory.decodeResource(getResources(), R.drawable.jen)
+            );
             background.setVector(-250);
         }
 
