@@ -25,7 +25,7 @@ public class MainThread extends Thread {
     }
 
     @Override
-    public void run(){
+    public void run() {
         long currentTime;
         long elapsedTime;
         long targetTime;
@@ -63,13 +63,13 @@ public class MainThread extends Thread {
             }
 
             totalTime += elapsedTime;
-            frameCount ++;
+            frameCount++;
 
             if (frameCount >= FPS) {
-                averageFPS = NANOS_PER_SECOND / (totalTime/frameCount);
+                averageFPS = NANOS_PER_SECOND / (totalTime / frameCount);
                 frameCount = 0;
                 totalTime = 0;
-                System.out.println("fps:"+averageFPS);
+//                System.out.println("fps:"+averageFPS);
 //                System.out.println("e:"+elapsedTime + "t:"+targetTime);
 //                System.out.println("w:"+waitTime);
             }
@@ -78,12 +78,12 @@ public class MainThread extends Thread {
         System.out.println("thread run finished");
     }
 
-    private void updateAndDraw(long elapsedTime){
+    private void updateAndDraw(long elapsedTime) {
         canvas = null;
-        double elapsedSeconds = (double)elapsedTime / NANOS_PER_SECOND;
+        double elapsedSeconds = (double) elapsedTime / NANOS_PER_SECOND;
 
         try {
-            canvas  = this.surfaceHolder.lockCanvas();
+            canvas = this.surfaceHolder.lockCanvas();
             synchronized (surfaceHolder) {
                 this.gamePanel.processInput();
                 this.gamePanel.update(elapsedSeconds);
@@ -93,8 +93,9 @@ public class MainThread extends Thread {
 
         } finally {
             if (canvas != null) {
-                try {surfaceHolder.unlockCanvasAndPost(canvas);}
-                catch (Exception e) {
+                try {
+                    surfaceHolder.unlockCanvasAndPost(canvas);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -104,5 +105,9 @@ public class MainThread extends Thread {
 
     public void setRunning(boolean b) {
         running = b;
+    }
+
+    public double getAverageFPS() {
+        return averageFPS;
     }
 }

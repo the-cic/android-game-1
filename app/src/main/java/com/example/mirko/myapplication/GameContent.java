@@ -1,12 +1,15 @@
 package com.example.mirko.myapplication;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.view.MotionEvent;
 
 /**
  * Created by mirko on 03/03/2016.
  */
-public class Background {
+public class GameContent {
     private Bitmap image;
     private Bitmap jen;
     private double x, y, dx;
@@ -18,15 +21,22 @@ public class Background {
     private int jenY;
     private int jenOffset;
 
-    public Background(Bitmap res, Bitmap jenRes) {
-        image = res;
-        jen = jenRes;
+    public GameContent(Resources resources) {
+        image = BitmapFactory.decodeResource(resources, R.drawable.bg);
+        jen = BitmapFactory.decodeResource(resources, R.drawable.jen);
+
         maxBob = 60;
         bobOffset = 50;
         jenOffset = 100;
+
+        setVector(-250);
     }
 
-    public void update(double secondsPerFrame){
+    public void processInput(MotionEvent event) {
+
+    }
+
+    public void update(double secondsPerFrame) {
         x += dx * secondsPerFrame;
         if (x < -GamePanel.WIDTH) {
             x = 0;
@@ -35,25 +45,25 @@ public class Background {
         if (bob >= maxBob) {
             bob -= maxBob;
         }
-        float t = (float)bob / maxBob;
-        y = (int)(Math.sin(t * Math.PI * 2) * bobOffset);
+        float t = (float) bob / maxBob;
+        y = (int) (Math.sin(t * Math.PI * 2) * bobOffset);
 
         jenU += 3.3 * secondsPerFrame;
         jenV += 11.1 * secondsPerFrame;
-        jenX = (int)(Math.sin(jenU) * jenOffset);
-        jenY = (int)Math.abs((Math.sin(jenV) * jenOffset / 2));
+        jenX = (int) (Math.sin(jenU) * jenOffset);
+        jenY = (int) Math.abs((Math.sin(jenV) * jenOffset / 2));
     }
 
 
-    public void draw(Canvas canvas ) {
-        canvas.drawBitmap(image, (int)x, (int)y, null);
+    public void draw(Canvas canvas) {
+        canvas.drawBitmap(image, (int) x, (int) y, null);
         if (x < 0) {
-            canvas.drawBitmap(image, (int)x + GamePanel.WIDTH, (int)y, null);
+            canvas.drawBitmap(image, (int) x + GamePanel.WIDTH, (int) y, null);
         }
         canvas.drawBitmap(jen, GamePanel.WIDTH / 2 + jenX, GamePanel.HEIGHT / 2 - 125 + jenY, null);
     }
 
-    public void setVector(int dx){
+    public void setVector(int dx) {
         this.dx = dx;
     }
 }

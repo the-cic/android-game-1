@@ -1,8 +1,10 @@
 package com.example.mirko.myapplication;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -18,8 +20,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public static final int WIDTH = 1280;
     public static final int HEIGHT = 720;
     private MainThread mainThread;
-    private Background background;
+    private GameContent gameContent;
     private ArrayList<MotionEvent> eventQueue;
+    private Paint fpsPaint;
 
     public GamePanel(Context context) {
         super(context);
@@ -29,6 +32,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         eventQueue = new ArrayList<>();
 
+        Typeface fpsTypeface = Typeface.create("sans-serif", Typeface.BOLD);
+        fpsPaint = new Paint();
+
+        fpsPaint.setColor(Color.RED);
+        fpsPaint.setStyle(Paint.Style.FILL);
+        fpsPaint.setTextSize(20);
+        fpsPaint.setTypeface(fpsTypeface);
+
         setFocusable(true);
     }
 
@@ -36,13 +47,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(SurfaceHolder holder) {
         System.out.println("Surface Created");
 
-        if (background == null) {
-            System.out.println("Create background");
-            background = new Background(
-                    BitmapFactory.decodeResource(getResources(), R.drawable.bg),
-                    BitmapFactory.decodeResource(getResources(), R.drawable.jen)
-            );
-            background.setVector(-250);
+        if (gameContent == null) {
+            System.out.println("Create gameContent");
+            gameContent = new GameContent(getResources());
         }
 
         if (mainThread == null) {
@@ -79,12 +86,19 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event){
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean b = super.onTouchEvent(event);
         eventQueue.add(event);
-        return super.onTouchEvent(event);
+
+        // Follow move events on the right side, and only touch events on the left
+        if (event.getX() > getWidth() / 2) {
+            return true;
+        }
+        return b;
     }
 
-    public void processInput(){
+
+    public void processInput() {
         ArrayList<MotionEvent> queue = eventQueue;
         eventQueue = new ArrayList<>();
 
@@ -93,54 +107,60 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    private void processInput(MotionEvent event){
+    private void processInput(MotionEvent event) {
         System.out.println("Process event " + event);
-        if (mainThread != null) {
-            switch (mainThread.FPS) {
-                case 30 :
-                    mainThread.FPS = 60;
-                    break;
-                case 60 :
-                    mainThread.FPS = 15;
-                    break;
-                case 15 :
-                    mainThread.FPS = 30;
-                    break;
-                default:
-                    mainThread.FPS = 30;
+        if (event.getX() < getWidth() / 2) {
+            if (mainThread != null) {
+                switch (mainThread.FPS) {
+                    case 30:
+                        mainThread.FPS = 60;
+                        break;
+                    case 60:
+                        mainThread.FPS = 15;
+                        break;
+                    case 15:
+                        mainThread.FPS = 30;
+                        break;
+                    default:
+                        mainThread.FPS = 30;
+                }
             }
+        } else {
+            gameContent.processInput(event);
         }
     }
 
     public void update(double secondsPerFrame) {
-        background.update(secondsPerFrame);
+        gameContent.update(secondsPerFrame);
     }
 
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        final float scaleFactorX = (float)getWidth() / WIDTH;
-        final float scaleFactorY = (float)getHeight() / HEIGHT;
+        final float scaleFactorX = (float) getWidth() / WIDTH;
+        final float scaleFactorY = (float) getHeight() / HEIGHT;
         final float scaleFactor = Math.min(scaleFactorX, scaleFactorY);
         final float offsetX;
         final float offsetY;
 
         if (scaleFactorX > scaleFactorY) {
-            offsetX = ((float)getWidth() - WIDTH * scaleFactor) / 2;
+            offsetX = ((float) getWidth() - WIDTH * scaleFactor) / 2;
             offsetY = 0;
         } else {
             offsetX = 0;
-            offsetY = ((float)getHeight() - HEIGHT * scaleFactor) / 2;
+            offsetY = ((float) getHeight() - HEIGHT * scaleFactor) / 2;
         }
 
         if (canvas != null) {
             final int savedState = canvas.save();
             canvas.translate(offsetX, offsetY);
-            canvas.clipRect(0, 0, getWidth() - offsetX*2, getHeight() - offsetY*2);
+            canvas.clipRect(0, 0, getWidth() - offsetX * 2, getHeight() - offsetY * 2);
             canvas.scale(scaleFactor, scaleFactor);
-            background.draw(canvas);
+            gameContent.draw(canvas);
             canvas.restoreToCount(savedState);
+
+            canvas.drawText("Fps: " + mainThread.getAverageFPS(), 10, 20, fpsPaint);
         }
     }
 
