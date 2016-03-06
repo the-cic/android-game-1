@@ -1,4 +1,4 @@
-package com.example.mirko.myapplication;
+package com.mush.weirdo;
 
 import org.junit.Test;
 

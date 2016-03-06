@@ -1,4 +1,4 @@
-package com.example.mirko.myapplication;
+package com.mush.weirdo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
