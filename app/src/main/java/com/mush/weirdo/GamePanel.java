@@ -17,8 +17,8 @@ import java.util.ArrayList;
  */
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
-    public static final int WIDTH = 90;
-    public static final int HEIGHT = 50;
+    public static final int WIDTH = 180;
+    public static final int HEIGHT = 100;
     private MainThread mainThread;
     private GameContent gameContent;
     private ArrayList<MotionEvent> eventQueue;
