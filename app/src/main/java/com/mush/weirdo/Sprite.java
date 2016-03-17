@@ -1,54 +1,55 @@
 package com.mush.weirdo;
 
-import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
 /**
- * Created by mirko on 09/03/2016.
+ * Any thing displayed on screen
+ *
+ * Created by mirko on 14/03/2016.
  */
 public class Sprite {
-    Bitmap[] frames;
-    int width;
-    int height;
+    private double x;
+    private double y;
+    private SpriteShape shape;
 
-    public Sprite(Bitmap source, int tileWidth, int tileHeight, int tileCount) {
-        frames = new Bitmap[tileCount];
-        width = tileWidth;
-        height = tileHeight;
-
-        int x = 0;
-        int y = 0;
-
-        for (int i = 0; i < tileCount; i++) {
-            System.out.println("create " + i + " " + x + " " + y);
-            frames[i] = Bitmap.createBitmap(source, x, y, width, height);
-            x += width;
-            if (i < tileCount - 1) {
-                if (x + width > source.getWidth()) {
-                    x = 0;
-                    y += height;
-                }
-                System.out.println("next x " + x);
-                if (y + height > source.getHeight()) {
-                    throw new RuntimeException("Sprite source size");
-                }
-                System.out.println("next y " + y);
-            }
-        }
+    public Sprite(SpriteShape shape) {
+        this.shape = shape;
     }
 
-    public int getFrameCount() {
-        return frames.length;
+    public void setShape(SpriteShape shape){
+        this.shape = shape;
     }
 
-    public Bitmap getFrame(int i) {
-        return frames[i];
+    public SpriteShape getShape() {
+        return this.shape;
     }
 
-    public int getWidth() {
-        return width;
+    public double getX(){
+        return x;
     }
 
-    public int getHeight() {
-        return height;
+    public double getY(){
+        return y;
+    }
+
+    public void setPosition(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getWidth(){
+        return shape.getWidth();
+    }
+
+    public int getHeight(){
+        return shape.getHeight();
+    }
+
+    public void draw(Canvas canvas){
+        shape.draw(x, y, canvas);
+    }
+
+    public boolean isVisible(){
+        return x + shape.getWidth() > 0 && x < GamePanel.WIDTH;
     }
 }

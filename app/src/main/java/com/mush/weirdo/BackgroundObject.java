@@ -1,6 +1,7 @@
 package com.mush.weirdo;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
 /**
  * Created by mirko on 06/03/2016.
@@ -18,7 +19,11 @@ public class BackgroundObject {
     }
 
     public double getScreenX(double screenX) {
-        return (getX() - screenX) * factor;
+        return getScreenX(screenX, 0);
+    }
+
+    public double getScreenX(double screenX, int ofs) {
+        return (getX() + ofs - screenX) * factor;
     }
 
     public double getScreenY(){
@@ -29,7 +34,18 @@ public class BackgroundObject {
         return x;
     }
 
+    public int getWidth() {
+        return image.getWidth();
+    }
+
     public void setX(double x) {
         this.x = x;
+    }
+
+    public void draw(Canvas canvas, double baseX){
+        canvas.drawBitmap(image,
+                (float) getScreenX(baseX),
+                (float) getScreenY(),
+                null);
     }
 }
