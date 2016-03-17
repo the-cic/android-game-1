@@ -5,12 +5,12 @@ import android.graphics.Bitmap;
 /**
  * Created by mirko on 09/03/2016.
  */
-public class SpriteFrames {
+public class BitmapFrames {
     Bitmap[] frames;
     int width;
     int height;
 
-    public SpriteFrames(Bitmap source, int tileWidth, int tileHeight, int tileCount) {
+    public BitmapFrames(Bitmap source, int tileWidth, int tileHeight, int tileCount) {
         frames = new Bitmap[tileCount];
         width = tileWidth;
         height = tileHeight;
@@ -29,7 +29,7 @@ public class SpriteFrames {
                 }
                 System.out.println("next x " + x);
                 if (y + height > source.getHeight()) {
-                    throw new RuntimeException("SpriteFrames source size");
+                    throw new RuntimeException("BitmapFrames source size");
                 }
                 System.out.println("next y " + y);
             }
