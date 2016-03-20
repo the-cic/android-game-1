@@ -47,19 +47,17 @@ public class GameContent {
         groundObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
         groundObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
-        SpriteShape wall = new ExtendableSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
-        wall.setAlignment(SpriteShape.ALIGN_LEFT | SpriteShape.ALIGN_BOTTOM);
+        SpriteShape wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
         groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30));
 
-        wall = new ExtendableSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
-        wall.setAlignment(SpriteShape.ALIGN_LEFT | SpriteShape.ALIGN_BOTTOM);
+        wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
         groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50));
 
         for (WorldObject object : backgroundObjects) {
             object.setX(((Math.random() * 0.5 + 0.2) * GamePanel.WIDTH) / ((ParallaxWorldObject)object).getFactor());
         }
 
-        weirdo = new Sprite(new ImageSpriteShape(BitmapFactory.decodeResource(resources, R.drawable.weirdo)));
+        weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo, SpriteShapeAlignment.SSA_BOTTOM_LEFT));
 
         jenOffset = 5;
 
@@ -72,10 +70,6 @@ public class GameContent {
 
     public void update(double secondsPerFrame) {
         x += dx * secondsPerFrame;
-        //y += dx * secondsPerFrame * 0.05;
-        if (x > GamePanel.WIDTH) {
-            //x = 0;
-        }
 
         for (WorldObject worldObject : backgroundObjects) {
             worldObject.applyScreenPosition(x, y);
@@ -96,11 +90,11 @@ public class GameContent {
         jenX = (int) (Math.sin(jenU) * jenOffset);
         jenY = (int) -Math.abs((Math.sin(jenV) * jenOffset));
 
-        weirdo.setPosition(GamePanel.WIDTH / 4 + jenX, GROUND_Y + jenY - weirdo.getHeight());
+        weirdo.setPosition(GamePanel.WIDTH / 4 + jenX, GROUND_Y + jenY);
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(horizonBackground, (int) 0, (int) 0, null);
+        canvas.drawBitmap(horizonBackground, 0, 0, null);
         canvas.drawBitmap(groundBackground, (float) (-x % GamePanel.WIDTH), GROUND_Y, null);
         canvas.drawBitmap(groundBackground, (float) (-x % GamePanel.WIDTH + GamePanel.WIDTH), GROUND_Y, null);
 
@@ -120,14 +114,11 @@ public class GameContent {
     }
 
     private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-        shape.setAlignment(SpriteShape.ALIGN_LEFT | SpriteShape.ALIGN_BOTTOM);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_BOTTOM_LEFT);
 
         Sprite sprite = new Sprite(shape);
 
-        ParallaxWorldObject worldObject = new ParallaxWorldObject(sprite, 0, HORIZON_Y, factor);
-
-        return worldObject;
+        return new ParallaxWorldObject(sprite, 0, HORIZON_Y, factor);
     }
 
     private WorldObject createFloatingHorizonObject(Resources resources, int resourceId, double factor, double y) {
@@ -137,13 +128,11 @@ public class GameContent {
     }
 
     private WorldObject createGroundObject(Resources resources, int resourceId, int y) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-        shape.setAlignment(SpriteShape.ALIGN_LEFT | SpriteShape.ALIGN_BOTTOM);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_BOTTOM_LEFT);
 
         Sprite sprite = new Sprite(shape);
 
-        WorldObject worldObject = new WorldObject(sprite, 0, y);
-        return worldObject;
+        return new WorldObject(sprite, 0, y);
     }
 
 }
