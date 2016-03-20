@@ -16,8 +16,6 @@ public class GameContent {
     private static final int GROUND_Y = HORIZON_Y + 3;
     private static final int BOTTOM_Y = 50;
 
-    private Bitmap horizonBackground;
-    private Bitmap groundBackground;
     ArrayList<WorldObject> backgroundObjects;
     ArrayList<WorldObject> groundObjects;
     Sprite weirdo;
@@ -30,10 +28,10 @@ public class GameContent {
     private int jenOffset;
 
     public GameContent(Resources resources) {
-        horizonBackground = BitmapFactory.decodeResource(resources, R.drawable.horizon);
-        groundBackground = BitmapFactory.decodeResource(resources, R.drawable.ground);
 
         backgroundObjects = new ArrayList<>();
+        backgroundObjects.add(createFixedHorizonBackground(resources, R.drawable.horizon));
+
         backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_far, 0.1));
         backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_mid_far, 0.15));
         backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_mid_near, 0.2));
@@ -43,6 +41,9 @@ public class GameContent {
         backgroundObjects.add(createHorizonObject(resources, R.drawable.trees_far, 0.5));
 
         groundObjects = new ArrayList<>();
+        groundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
+        groundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
+
         groundObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
         groundObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
         groundObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
@@ -68,7 +69,6 @@ public class GameContent {
         x += dx * secondsPerFrame;
 
         for (WorldObject worldObject : backgroundObjects) {
-            worldObject.applyScreenPan(x, y);
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 ScreenPanEffect panEffect = worldObject.getPanEffect();
                 if (panEffect instanceof ParallaxScreenPanEffect) {
@@ -76,13 +76,14 @@ public class GameContent {
                     worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()*0.2)) / factor));
                 }
             }
+            worldObject.applyScreenPan(x, y);
         }
 
         for (WorldObject worldObject : groundObjects) {
-            worldObject.applyScreenPan(x, y);
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()))));
             }
+            worldObject.applyScreenPan(x, y);
         }
 
         jenU += 3.3 * secondsPerFrame;
@@ -94,9 +95,6 @@ public class GameContent {
     }
 
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(horizonBackground, 0, 0, null);
-        canvas.drawBitmap(groundBackground, (float) (-x % GamePanel.WIDTH), GROUND_Y, null);
-        canvas.drawBitmap(groundBackground, (float) (-x % GamePanel.WIDTH + GamePanel.WIDTH), GROUND_Y, null);
 
         for (WorldObject worldObject : backgroundObjects) {
             worldObject.getSprite().draw(canvas);
@@ -111,6 +109,22 @@ public class GameContent {
 
     public void setVector(int dx) {
         this.dx = dx;
+    }
+
+    private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_TOP_LEFT);
+
+        Sprite sprite = new Sprite(shape);
+
+        return new WorldObject(sprite, 0, 0, null);
+    }
+
+    private WorldObject createRepeatingGroundBackground(Resources resources, int resourceId, int offset) {
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_TOP_LEFT);
+
+        Sprite sprite = new Sprite(shape);
+
+        return new WorldObject(sprite, offset * GamePanel.WIDTH, GROUND_Y, CycleScreenPanEffect.INSTANCE);
     }
 
     private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {

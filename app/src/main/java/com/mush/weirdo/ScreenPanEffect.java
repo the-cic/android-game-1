@@ -6,8 +6,4 @@ package com.mush.weirdo;
 public interface ScreenPanEffect {
 
     void panWorldObject(double screenX, double screenY, WorldObject object);
-//    {
-//        sprite.setPosition(x - screenX, y - screenY);
-//        //return (getX() + ofs - screenX) * factor;
-//    }
 }
