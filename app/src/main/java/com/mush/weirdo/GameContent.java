@@ -48,14 +48,10 @@ public class GameContent {
         groundObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
         SpriteShape wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
-        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30));
+        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE));
 
         wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
-        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50));
-
-        for (WorldObject object : backgroundObjects) {
-            object.setX(((Math.random() * 0.5 + 0.2) * GamePanel.WIDTH) / ((ParallaxWorldObject)object).getFactor());
-        }
+        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE));
 
         weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo, SpriteShapeAlignment.SSA_BOTTOM_LEFT));
 
@@ -72,14 +68,18 @@ public class GameContent {
         x += dx * secondsPerFrame;
 
         for (WorldObject worldObject : backgroundObjects) {
-            worldObject.applyScreenPosition(x, y);
+            worldObject.applyScreenPan(x, y);
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
-                worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()*0.2)) / ((ParallaxWorldObject)worldObject).getFactor()));
+                ScreenPanEffect panEffect = worldObject.getPanEffect();
+                if (panEffect instanceof ParallaxScreenPanEffect) {
+                    double factor = ((ParallaxScreenPanEffect)panEffect).getFactor();
+                    worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()*0.2)) / factor));
+                }
             }
         }
 
         for (WorldObject worldObject : groundObjects) {
-            worldObject.applyScreenPosition(x, y);
+            worldObject.applyScreenPan(x, y);
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()))));
             }
@@ -118,7 +118,9 @@ public class GameContent {
 
         Sprite sprite = new Sprite(shape);
 
-        return new ParallaxWorldObject(sprite, 0, HORIZON_Y, factor);
+        double firstX = ((Math.random() * 0.5 + 0.2) * GamePanel.WIDTH) / factor;
+
+        return new WorldObject(sprite, firstX, HORIZON_Y, new ParallaxScreenPanEffect(factor));
     }
 
     private WorldObject createFloatingHorizonObject(Resources resources, int resourceId, double factor, double y) {
@@ -132,7 +134,7 @@ public class GameContent {
 
         Sprite sprite = new Sprite(shape);
 
-        return new WorldObject(sprite, 0, y);
+        return new WorldObject(sprite, 0, y, FollowScreenPanEffect.INSTANCE);
     }
 
 }

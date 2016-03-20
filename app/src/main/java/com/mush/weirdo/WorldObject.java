@@ -1,6 +1,6 @@
 package com.mush.weirdo;
 
-import android.graphics.Bitmap;
+import android.graphics.Canvas;
 
 /**
  * Created by mirko on 16/03/2016.
@@ -10,11 +10,14 @@ public class WorldObject {
     public Sprite sprite;
     private double x;
     private double y;
+    private ScreenPanEffect panEffect;
 
-    public WorldObject(Sprite sprite, double x, double y) {
+    public WorldObject(Sprite sprite, double x, double y, ScreenPanEffect panEffect) {
         setSprite(sprite);
         setX(x);
         setY(y);
+        this.panEffect = panEffect;
+        sprite.setPosition(x, y);
     }
 
     public void setSprite(Sprite sprite) {
@@ -23,6 +26,9 @@ public class WorldObject {
 
     public Sprite getSprite() {
         return sprite;
+    }
+    public ScreenPanEffect getPanEffect() {
+        return this.panEffect;
     }
 
     public void setX(double x) {
@@ -40,8 +46,15 @@ public class WorldObject {
         return y;
     }
 
+    public void applyScreenPan(double screenX, double screenY) {
+        if (panEffect != null) {
+            panEffect.panWorldObject(screenX, screenY, this);
+        }
+    }
+
+    /*
     public void applyScreenPosition(double screenX, double screenY) {
         sprite.setPosition(x - screenX, y - screenY);
         //return (getX() + ofs - screenX) * factor;
-    }
+    }*/
 }
