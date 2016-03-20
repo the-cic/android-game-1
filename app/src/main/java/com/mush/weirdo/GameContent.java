@@ -1,8 +1,6 @@
 package com.mush.weirdo;
 
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
@@ -17,14 +15,16 @@ public class GameContent {
     private static final int BOTTOM_Y = 50;
 
     ArrayList<WorldObject> backgroundObjects;
-    ArrayList<WorldObject> groundObjects;
+    ArrayList<WorldObject> worldObjects;
     Sprite weirdo;
+    GameControls controls;
 
     private double x, y, dx;
     private double jenU;
     private double jenV;
     private int jenX;
     private int jenY;
+    private double jenY0 = 0;
     private int jenOffset;
 
     public GameContent(Resources resources) {
@@ -40,33 +40,45 @@ public class GameContent {
         backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_near, 0.4));
         backgroundObjects.add(createHorizonObject(resources, R.drawable.trees_far, 0.5));
 
-        groundObjects = new ArrayList<>();
-        groundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
-        groundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
+        backgroundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
+        backgroundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
 
-        groundObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
-        groundObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
-        groundObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
+        worldObjects = new ArrayList<>();
+        worldObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
+        worldObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
+        worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
         SpriteShape wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
-        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE));
+        worldObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE));
 
         wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
-        groundObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE));
+        worldObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE));
 
         weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo, SpriteShapeAlignment.SSA_BOTTOM_LEFT));
 
         jenOffset = 5;
 
         setVector(30);
+        controls = new GameControls();
     }
 
-    public void processInput(MotionEvent event) {
-
+    public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
+        controls.processInput(event, screenWidth, screenHeight);
+//        System.out.println("direction: " + controls.getDirection());
     }
 
     public void update(double secondsPerFrame) {
-        x += dx * secondsPerFrame;
+        x += dx * secondsPerFrame * controls.getHorizontalDirection();
+        jenY0 -= dx * secondsPerFrame * controls.getVerticalDirection();
+        if (x < 0) {
+            x = 0;
+        }
+        if (jenY0 < 0) {
+            jenY0 = 0;
+        }
+        if (jenY0 > BOTTOM_Y*2 - GROUND_Y) {
+            jenY0 = BOTTOM_Y*2 - GROUND_Y;
+        }
 
         for (WorldObject worldObject : backgroundObjects) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
@@ -79,7 +91,7 @@ public class GameContent {
             worldObject.applyScreenPan(x, y);
         }
 
-        for (WorldObject worldObject : groundObjects) {
+        for (WorldObject worldObject : worldObjects) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()))));
             }
@@ -91,7 +103,7 @@ public class GameContent {
         jenX = (int) (Math.sin(jenU) * jenOffset);
         jenY = (int) -Math.abs((Math.sin(jenV) * jenOffset));
 
-        weirdo.setPosition(GamePanel.WIDTH / 4 + jenX, GROUND_Y + jenY);
+        weirdo.setPosition(GamePanel.WIDTH / 4 + jenX, GROUND_Y + jenY + jenY0);
     }
 
     public void draw(Canvas canvas) {
@@ -100,7 +112,7 @@ public class GameContent {
             worldObject.getSprite().draw(canvas);
         }
 
-        for (WorldObject worldObject : groundObjects) {
+        for (WorldObject worldObject : worldObjects) {
             worldObject.getSprite().draw(canvas);
         }
 

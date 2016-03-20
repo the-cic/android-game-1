@@ -89,9 +89,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = super.onTouchEvent(event);
         eventQueue.add(event);
+//        System.out.println("add event " + event);
 
         // Follow move events on the right side, and only touch events on the left
-        if (event.getX() > getWidth() / 2) {
+        if (!(event.getX() < getWidth() / 2 && event.getY() < getHeight() / 5)) {
             return true;
         }
         return b;
@@ -108,8 +109,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void processInput(MotionEvent event) {
-        System.out.println("Process event " + event);
-        if (event.getX() < getWidth() / 2) {
+//        System.out.println("Process event " + event);
+        if (event.getX() < getWidth() / 2 && event.getY() < getHeight() / 5) {
             if (mainThread != null) {
                 switch (mainThread.FPS) {
                     case 30:
@@ -126,7 +127,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
         } else {
-            gameContent.processInput(event);
+            gameContent.processInput(event, getWidth(), getHeight());
         }
     }
 
