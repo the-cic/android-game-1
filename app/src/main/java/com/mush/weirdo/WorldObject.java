@@ -11,12 +11,14 @@ public class WorldObject {
     private double x;
     private double y;
     private ScreenPanEffect panEffect;
+    private WorldObjectControl control;
 
-    public WorldObject(Sprite sprite, double x, double y, ScreenPanEffect panEffect) {
+    public WorldObject(Sprite sprite, double x, double y, ScreenPanEffect panEffect, WorldObjectControl control) {
         setSprite(sprite);
         setX(x);
         setY(y);
         this.panEffect = panEffect;
+        this.control = control;
         sprite.setPosition(x, y);
     }
 
@@ -27,8 +29,13 @@ public class WorldObject {
     public Sprite getSprite() {
         return sprite;
     }
+
     public ScreenPanEffect getPanEffect() {
         return this.panEffect;
+    }
+
+    public WorldObjectControl getControl(){
+        return this.control;
     }
 
     public void setX(double x) {
@@ -49,6 +56,12 @@ public class WorldObject {
     public void applyScreenPan(double screenX, double screenY) {
         if (panEffect != null) {
             panEffect.panWorldObject(screenX, screenY, this);
+        }
+    }
+
+    public void update(double secondsPerFrame) {
+        if (control != null) {
+            control.update(this, secondsPerFrame);
         }
     }
 
