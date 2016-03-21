@@ -23,12 +23,6 @@ public class GameContent {
     private double targetPanX;
     private double panSpeed;
     private int panDirection;
-//    private double jenU;
-//    private double jenV;
-//    private int jenX;
-//    private int jenY;
-//    private double jenY0 = 0;
-//    private int jenOffset;
 
     public GameContent(Resources resources) {
         controls = new GameControls();
@@ -63,9 +57,6 @@ public class GameContent {
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
 
-//        jenOffset = 5;
-
-//        setVector(30);
         panSpeed = 100;
         panDirection = 0;
         panX = 0;
@@ -74,20 +65,15 @@ public class GameContent {
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
         controls.processInput(event, screenWidth, screenHeight);
-//        System.out.println("direction: " + controls.getDirection());
     }
 
     public void update(double secondsPerFrame) {
-        //x += dx * secondsPerFrame * controls.getHorizontalDirection();
-//        jenY0 -= dx * secondsPerFrame * controls.getVerticalDirection();
         if (panDirection == 0) {
             if (player.getSprite().getX() > GamePanel.WIDTH * 0.75) {
-//            pan += dx * secondsPerFrame;
                 targetPanX += GamePanel.WIDTH * 0.45;
                 panDirection = 1;
             }
             if (player.getSprite().getX() < GamePanel.WIDTH * 0.25) {
-//            x -= dx * secondsPerFrame;
                 targetPanX -= GamePanel.WIDTH * 0.45;
                 panDirection = -1;
                 if (targetPanX < 0) {
@@ -114,12 +100,6 @@ public class GameContent {
         if (panX < 0) {
             panX = 0;
         }
-//        if (jenY0 < 0) {
-//            jenY0 = 0;
-//        }
-//        if (jenY0 > BOTTOM_Y*2 - GROUND_Y) {
-//            jenY0 = BOTTOM_Y*2 - GROUND_Y;
-//        }
 
         for (WorldObject worldObject : backgroundObjects) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
@@ -139,19 +119,8 @@ public class GameContent {
             worldObject.applyScreenPan(panX, 0);
         }
 
-//        jenU += 3.3 * secondsPerFrame;
-//        jenV += 11.1 * secondsPerFrame;
-//        jenX = (int) (Math.sin(jenU) * jenOffset);
-//        jenY = (int) -Math.abs((Math.sin(jenV) * jenOffset));
-//
-//        player.setX(x + GamePanel.WIDTH / 4 + jenX);
-//        player.setY(GROUND_Y + jenY + jenY0);
-//        player.applyScreenPan(x, y);
-
         player.update(secondsPerFrame);
 
-//        player.setX(player.getX() + controls.getHorizontalDirection() * secondsPerFrame * dx);
-//        player.setY(player.getY() - controls.getVerticalDirection() * secondsPerFrame * dx);
         if (player.getX() < 0) {
             player.setX(0);
         }
@@ -176,10 +145,6 @@ public class GameContent {
 
         player.getSprite().draw(canvas);
     }
-
-//    public void setVector(int dx) {
-//        this.dx = dx;
-//    }
 
     private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_TOP_LEFT);

@@ -66,10 +66,10 @@ public class GameControls {
     }
 
     private int processVertical(float y, int height){
-        if (y < height * 0.25) {
+        if (y < height * 0.4) {
             return UP;
         }
-        if (y > height * 0.75) {
+        if (y > height * 0.6) {
             return DOWN;
         }
         return 0;
