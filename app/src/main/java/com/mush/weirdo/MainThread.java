@@ -18,10 +18,22 @@ public class MainThread extends Thread {
     private boolean running;
     private static Canvas canvas;
 
+//    private DrawWorkerThread[] workerThreads;
+
     public MainThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
         super();
         this.surfaceHolder = surfaceHolder;
         this.gamePanel = gamePanel;
+//        this.workerThreads = new DrawWorkerThread[] {
+//                new DrawWorkerThread(gamePanel, 0),
+//                new DrawWorkerThread(gamePanel, 1),
+//                new DrawWorkerThread(gamePanel, 2),
+//                new DrawWorkerThread(gamePanel, 3)
+//        };
+//
+//        for (DrawWorkerThread worker : workerThreads) {
+//            worker.start();
+//        }
     }
 
     @Override
@@ -83,11 +95,21 @@ public class MainThread extends Thread {
         double elapsedSeconds = (double) elapsedTime / NANOS_PER_SECOND;
 
         try {
+            //canvas = this.surfaceHolder.lockCanvas();
             canvas = this.surfaceHolder.lockCanvas();
             synchronized (surfaceHolder) {
-                this.gamePanel.processInput();
+//                this.gamePanel.processInput();
                 this.gamePanel.update(elapsedSeconds);
                 this.gamePanel.draw(canvas);
+
+//                for (DrawWorkerThread worker : workerThreads) {
+//                    worker.setCanvas(canvas);
+//                    worker.interrupt();
+//                }
+//
+//                while (!(workerThreads[0].isIdle() && workerThreads[1].isIdle() && workerThreads[2].isIdle() && workerThreads[3].isIdle())) {
+//                    this.sleep(1);
+//                }
             }
         } catch (Exception e) {
 
@@ -105,6 +127,11 @@ public class MainThread extends Thread {
 
     public void setRunning(boolean b) {
         running = b;
+//        if (!running) {
+//            for (DrawWorkerThread worker : workerThreads) {
+//                worker.setRunning(false);
+//            }
+//        }
     }
 
     public double getAverageFPS() {

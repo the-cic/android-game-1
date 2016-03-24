@@ -21,7 +21,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public static final int HEIGHT = 100;
     private MainThread mainThread;
     private GameContent gameContent;
-    private ArrayList<MotionEvent> eventQueue;
+//    private ArrayList<MotionEvent> eventQueue;
     private Paint fpsPaint;
 
     public GamePanel(Context context) {
@@ -30,7 +30,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         System.out.println("New game panel");
         getHolder().addCallback(this);
 
-        eventQueue = new ArrayList<>();
+//        eventQueue = new ArrayList<>();
 
         Typeface fpsTypeface = Typeface.create("sans-serif", Typeface.BOLD);
         fpsPaint = new Paint();
@@ -88,8 +88,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = super.onTouchEvent(event);
-        eventQueue.add(event);
+//        eventQueue.add(event);
 //        System.out.println("add event " + event);
+
+        processInput(event);
 
         // Follow move events on the right side, and only touch events on the left
         if (!(event.getX() < getWidth() * 0.1 && event.getY() < getHeight() * 0.1)) {
@@ -98,15 +100,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         return b;
     }
 
-
-    public void processInput() {
-        ArrayList<MotionEvent> queue = eventQueue;
-        eventQueue = new ArrayList<>();
-
-        for (MotionEvent event : queue) {
-            processInput(event);
-        }
-    }
+//    public void processInput() {
+//        System.out.println("queue " + eventQueue);
+//        ArrayList<MotionEvent> queue = eventQueue;
+//        eventQueue = new ArrayList<>();
+//        System.out.println("reset queue");
+//
+//        for (MotionEvent event : queue) {
+//            processInput(event);
+//        }
+//    }
 
     private void processInput(MotionEvent event) {
 //        System.out.println("Process event " + event);
@@ -126,9 +129,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         mainThread.FPS = 30;
                 }
             }
-        } else {
-            gameContent.processInput(event, getWidth(), getHeight());
         }
+
+        gameContent.processInput(event, getWidth(), getHeight());
     }
 
     public void update(double secondsPerFrame) {
@@ -138,7 +141,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+        render(canvas);
+    }
 
+    private void render(Canvas canvas) {
         final float scaleFactorX = (float) getWidth() / WIDTH;
         final float scaleFactorY = (float) getHeight() / HEIGHT;
         final float scaleFactor = Math.min(scaleFactorX, scaleFactorY);
@@ -161,7 +167,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             gameContent.draw(canvas);
             canvas.restoreToCount(savedState);
 
-            canvas.drawText("Fps: " + mainThread.getAverageFPS(), 10, 20, fpsPaint);
+            if (mainThread != null) {
+                double fps = mainThread.getAverageFPS();
+                double fpsDiff = mainThread.FPS - fps;
+
+                if (fpsDiff < mainThread.FPS * 0.2) {
+                    fpsPaint.setColor(Color.GREEN);
+                } else if (fpsDiff < mainThread.FPS * 0.4) {
+                    fpsPaint.setColor(Color.YELLOW);
+                } else {
+                    fpsPaint.setColor(Color.RED);
+                }
+
+                canvas.drawText("Fps: " + fps, 10, 20, fpsPaint);
+            }
         }
     }
 
