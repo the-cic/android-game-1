@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by mirko on 03/03/2016.
@@ -14,10 +15,11 @@ public class GameContent {
     private static final int GROUND_Y = HORIZON_Y + 3;
     private static final int BOTTOM_Y = 50;
 
-    ArrayList<WorldObject> backgroundObjects;
-    ArrayList<WorldObject> worldObjects;
-    WorldObject player;
-    GameControls controls;
+    private ArrayList<WorldObject> backgroundObjects;
+    private ArrayList<WorldObject> worldObjects;
+    private WorldObject player;
+    private GameControls controls;
+    private WorldObjectDistanceComparator comparator;
 
     private double panX;
     private double targetPanX;
@@ -26,6 +28,7 @@ public class GameContent {
 
     public GameContent(Resources resources) {
         controls = new GameControls();
+        comparator = new WorldObjectDistanceComparator();
 
         backgroundObjects = new ArrayList<>();
         backgroundObjects.add(createFixedHorizonBackground(resources, R.drawable.horizon));
@@ -44,7 +47,7 @@ public class GameContent {
         worldObjects = new ArrayList<>();
         worldObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
         worldObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
-        worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
+        //worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
         SpriteShape wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
         worldObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE, null));
@@ -56,6 +59,7 @@ public class GameContent {
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
+        worldObjects.add(player);
 
         panSpeed = 100;
         panDirection = 0;
@@ -139,11 +143,11 @@ public class GameContent {
             worldObject.getSprite().draw(canvas);
         }
 
+        Collections.sort(worldObjects, comparator);
+
         for (WorldObject worldObject : worldObjects) {
             worldObject.getSprite().draw(canvas);
         }
-
-        player.getSprite().draw(canvas);
     }
 
     private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
