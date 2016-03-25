@@ -47,13 +47,22 @@ public class GameContent {
         worldObjects = new ArrayList<>();
         worldObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
         worldObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
+        worldObjects.add(createGroundObject(resources, R.drawable.grass_near, BOTTOM_Y + 10));
         //worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
-        SpriteShape wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
-        worldObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE, null));
+        WorldObject table = createGroundObject(resources, R.drawable.table, BOTTOM_Y + 15);
+        table.setBounds(table.getSprite().getWidth(), table.getSprite().getHeight() * 0.2);
+        worldObjects.add(table);
 
-        wall = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
-        worldObjects.add(new WorldObject(new Sprite(wall), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE, null));
+        SpriteShape wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
+        WorldObject wall = new WorldObject(new Sprite(wallShape), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE, null);
+        wall.setBounds(wallShape.getWidth(), wallShape.getHeight()*0.2);
+        worldObjects.add(wall);
+
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
+        wall = new WorldObject(new Sprite(wallShape), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE, null);
+        wall.setBounds(wallShape.getWidth(), wallShape.getHeight()*0.2);
+        worldObjects.add(wall);
 
         Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo, SpriteShapeAlignment.SSA_BOTTOM_LEFT));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
@@ -123,7 +132,7 @@ public class GameContent {
             worldObject.applyScreenPan(panX, 0);
         }
 
-        player.update(secondsPerFrame);
+        player.update(secondsPerFrame, worldObjects);
 
         if (player.getX() < 0) {
             player.setX(0);

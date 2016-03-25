@@ -13,7 +13,7 @@ public class InputWorldObjectControl implements WorldObjectControl {
 
     @Override
     public void update(WorldObject object, double secondsPerFrame) {
-        object.setX(object.getX() + controls.getHorizontalDirection() * secondsPerFrame * 30);
-        object.setY(object.getY() - controls.getVerticalDirection() * secondsPerFrame * 30);
+        object.setNextX(object.getX() + controls.getHorizontalDirection() * secondsPerFrame * 30);
+        object.setNextY(object.getY() - controls.getVerticalDirection() * secondsPerFrame * 30);
     }
 }
