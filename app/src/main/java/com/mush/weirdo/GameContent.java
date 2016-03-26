@@ -2,6 +2,7 @@ package com.mush.weirdo;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
@@ -64,7 +65,8 @@ public class GameContent {
         wall.setBounds(wallShape.getWidth(), wallShape.getHeight()*0.2);
         worldObjects.add(wall);
 
-        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo, SpriteShapeAlignment.SSA_BOTTOM_LEFT));
+        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo/*, SpriteShapeAlignment.SSA_BOTTOM_LEFT*/));
+        weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth()/2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
@@ -160,7 +162,7 @@ public class GameContent {
     }
 
     private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_TOP_LEFT);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
 
         Sprite sprite = new Sprite(shape);
 
@@ -168,7 +170,7 @@ public class GameContent {
     }
 
     private WorldObject createRepeatingGroundBackground(Resources resources, int resourceId, int offset) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_TOP_LEFT);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
 
         Sprite sprite = new Sprite(shape);
 
@@ -176,7 +178,8 @@ public class GameContent {
     }
 
     private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_BOTTOM_LEFT);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+        shape.setPivot(new Point(0, shape.getHeight()));
 
         Sprite sprite = new Sprite(shape);
 
@@ -192,7 +195,8 @@ public class GameContent {
     }
 
     private WorldObject createGroundObject(Resources resources, int resourceId, int y) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId, SpriteShapeAlignment.SSA_BOTTOM_LEFT);
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+        shape.setPivot(new Point(0, shape.getHeight()));
 
         Sprite sprite = new Sprite(shape);
 

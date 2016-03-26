@@ -48,9 +48,11 @@ public class GameControls {
             return;
         }
         double length = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-        if (length > 10) {
+        if (length > 5) {
             directionX = offsetX / length;
-            directionY = -offsetY / length;
+            directionY = offsetY / length;
+            firstTouchX = (float)((firstTouchX + offsetX) - directionX * 6);
+            firstTouchY = (float)((firstTouchY + offsetY) - directionY * 6);
         } else {
             directionX = 0;
             directionY = 0;
@@ -65,7 +67,7 @@ public class GameControls {
 
     public double getVerticalDirection(){
         calculateDirection();
-        return directionY;
+        return -directionY;
     }
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {

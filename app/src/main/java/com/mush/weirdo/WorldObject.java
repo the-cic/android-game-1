@@ -19,6 +19,7 @@ public class WorldObject {
     private WorldObjectControl control;
     private Double boundWidth;
     private Double boundHeight;
+    private WorldPhysicalObject physicalObject;
 
     public WorldObject(Sprite sprite, double x, double y, ScreenPanEffect panEffect, WorldObjectControl control) {
         setSprite(sprite);
@@ -99,16 +100,25 @@ public class WorldObject {
     public void update(double secondsPerFrame, ArrayList<WorldObject> objects) {
         if (control != null) {
             control.update(this, secondsPerFrame);
-            boolean collision = false;
+            WorldObject collision = null;
             for (WorldObject other : objects) {
                 if (checkCollisionWith(other)) {
-                    collision = true;
+                    collision = other;
                     break;
                 }
             }
-            if (!collision) {
+            if (collision == null) {
                 this.x = this.nextX;
                 this.y = this.nextY;
+            } else {
+                boolean xWithin = this.x > collision.getX() && this.x < collision.getX() + collision.getBoundWidth();
+                boolean yWithin = this.y > collision.getY() - collision.getBoundHeight() && this.y < collision.getY();
+                if (xWithin && !yWithin) {
+                    this.x = this.nextX;
+                } else
+                if (yWithin && !xWithin) {
+                    this.y = this.nextY;
+                }
             }
         }
     }

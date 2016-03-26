@@ -1,6 +1,8 @@
 package com.mush.weirdo;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 /**
  * Any thing displayed on screen
@@ -11,9 +13,16 @@ public class Sprite {
     private double x;
     private double y;
     private SpriteShape shape;
+    Paint paint;
+
 
     public Sprite(SpriteShape shape) {
         this.shape = shape;
+        paint = new Paint();
+
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+
     }
 
     public void setShape(SpriteShape shape){
@@ -47,6 +56,7 @@ public class Sprite {
 
     public void draw(Canvas canvas){
         shape.draw(x, y, canvas);
+        canvas.drawCircle((float)x, (float)y, 1, paint);
     }
 
     public boolean isVisible(){

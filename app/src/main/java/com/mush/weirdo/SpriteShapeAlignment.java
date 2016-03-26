@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 /**
  * Created by mirko on 20/03/2016.
  */
+@Deprecated
 public class SpriteShapeAlignment {
 
     public static final int ALIGN_TOP = 1;
