@@ -3,9 +3,11 @@ package com.mush.weirdo;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -16,8 +18,7 @@ public class GameContent {
     private static final int GROUND_Y = HORIZON_Y + 3;
     private static final int BOTTOM_Y = 50;
 
-    private ArrayList<WorldObject> backgroundObjects;
-    private ArrayList<WorldObject> worldObjects;
+    private WorldObjectRepository objectRepository;
     private WorldObject player;
     private GameControls controls;
     private WorldObjectDistanceComparator comparator;
@@ -31,46 +32,48 @@ public class GameContent {
         controls = new GameControls();
         comparator = new WorldObjectDistanceComparator();
 
-        backgroundObjects = new ArrayList<>();
-        backgroundObjects.add(createFixedHorizonBackground(resources, R.drawable.horizon));
+        objectRepository = new WorldObjectRepository();
 
-        backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_far, 0.1));
-        backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_mid_far, 0.15));
-        backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_mid_near, 0.2));
-        backgroundObjects.add(createFloatingHorizonObject(resources, R.drawable.cloud, 0.3, HORIZON_Y * 0.5));
-        backgroundObjects.add(createFloatingHorizonObject(resources, R.drawable.cloud, 0.35, HORIZON_Y * 0.4));
-        backgroundObjects.add(createHorizonObject(resources, R.drawable.mountains_near, 0.4));
-        backgroundObjects.add(createHorizonObject(resources, R.drawable.trees_far, 0.5));
+        objectRepository.addBackground(createFixedHorizonBackground(resources, R.drawable.horizon));
 
-        backgroundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
-        backgroundObjects.add(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
+        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_far, 0.1));
+        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_far, 0.15));
+        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_near, 0.2));
+        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.3, HORIZON_Y * 0.5));
+        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.35, HORIZON_Y * 0.4));
+        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_near, 0.4));
+        objectRepository.addBackground(createHorizonObject(resources, R.drawable.trees_far, 0.5));
 
-        worldObjects = new ArrayList<>();
-        worldObjects.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
-        worldObjects.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
-        worldObjects.add(createGroundObject(resources, R.drawable.grass_near, BOTTOM_Y + 10));
+        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
+        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
+
+        objectRepository.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
+        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
+        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, BOTTOM_Y + 10));
         //worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
         WorldObject table = createGroundObject(resources, R.drawable.table, BOTTOM_Y + 15);
-        table.setBounds(table.getSprite().getWidth(), table.getSprite().getHeight() * 0.2);
-        worldObjects.add(table);
+        table.setBounds(0, (int) (-table.getSprite().getHeight() * 0.2), table.getSprite().getWidth(), 0);
+        objectRepository.add(table);
 
         SpriteShape wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
         WorldObject wall = new WorldObject(new Sprite(wallShape), 0, BOTTOM_Y + 30, FollowScreenPanEffect.INSTANCE, null);
-        wall.setBounds(wallShape.getWidth(), wallShape.getHeight()*0.2);
-        worldObjects.add(wall);
+        wall.setBounds(0, (int) (-wallShape.getHeight() * 0.2), wallShape.getWidth(), 0);
+        objectRepository.add(wall);
 
         wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
         wall = new WorldObject(new Sprite(wallShape), 0, BOTTOM_Y + 50, FollowScreenPanEffect.INSTANCE, null);
-        wall.setBounds(wallShape.getWidth(), wallShape.getHeight()*0.2);
-        worldObjects.add(wall);
+        wall.setBounds(0, (int) (-wallShape.getHeight() * 0.2), wallShape.getWidth(), 0);
+        objectRepository.add(wall);
 
-        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo/*, SpriteShapeAlignment.SSA_BOTTOM_LEFT*/));
+        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth()/2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
-        worldObjects.add(player);
+        player.setVelocity(new PointF());
+        player.setObjectRepository(this.objectRepository);
+        objectRepository.add(player);
 
         panSpeed = 100;
         panDirection = 0;
@@ -116,7 +119,7 @@ public class GameContent {
             panX = 0;
         }
 
-        for (WorldObject worldObject : backgroundObjects) {
+        for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 ScreenPanEffect panEffect = worldObject.getPanEffect();
                 if (panEffect instanceof ParallaxScreenPanEffect) {
@@ -127,14 +130,15 @@ public class GameContent {
             worldObject.applyScreenPan(panX, 0);
         }
 
-        for (WorldObject worldObject : worldObjects) {
+        for (WorldObject worldObject : this.objectRepository.getObjects()) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()))));
             }
             worldObject.applyScreenPan(panX, 0);
         }
 
-        player.update(secondsPerFrame, worldObjects);
+        player.update(secondsPerFrame);
+        player.applyUpdate();
 
         if (player.getX() < 0) {
             player.setX(0);
@@ -150,13 +154,15 @@ public class GameContent {
 
     public void draw(Canvas canvas) {
 
-        for (WorldObject worldObject : backgroundObjects) {
+        for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             worldObject.getSprite().draw(canvas);
         }
 
-        Collections.sort(worldObjects, comparator);
+        ArrayList<WorldObject> objects = this.objectRepository.getObjects();
 
-        for (WorldObject worldObject : worldObjects) {
+        Collections.sort(objects, comparator);
+
+        for (WorldObject worldObject : objects) {
             worldObject.getSprite().draw(canvas);
         }
     }

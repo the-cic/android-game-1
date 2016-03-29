@@ -1,6 +1,6 @@
 package com.mush.weirdo;
 
-import android.graphics.Canvas;
+import android.graphics.PointF;
 import android.graphics.Rect;
 
 import java.util.ArrayList;
@@ -17,9 +17,9 @@ public class WorldObject {
     private double nextY;
     private ScreenPanEffect panEffect;
     private WorldObjectControl control;
-    private Double boundWidth;
-    private Double boundHeight;
-    private WorldPhysicalObject physicalObject;
+    private Rect bounds;
+    private PointF velocity;
+    private WorldObjectRepository objectRepository;
 
     public WorldObject(Sprite sprite, double x, double y, ScreenPanEffect panEffect, WorldObjectControl control) {
         setSprite(sprite);
@@ -62,9 +62,8 @@ public class WorldObject {
         this.nextY = y;
     }
 
-    public void setBounds(double w, double h) {
-        this.boundWidth = w;
-        this.boundHeight = h;
+    public void setBounds(int l, int t, int r, int b) {
+        this.bounds = new Rect(l, t, r, b);
     }
 
     public double getX(){
@@ -75,50 +74,48 @@ public class WorldObject {
         return y;
     }
 
-//    public double getNextX() {
-//        return this.nextX;
-//    }
-//
-//    public double getNextY() {
-//        return this.nextY;
-//    }
-
-    public Double getBoundWidth(){
-        return this.boundWidth;
-    }
-
-    public Double getBoundHeight(){
-        return this.boundHeight;
-    }
-
     public void applyScreenPan(double screenX, double screenY) {
         if (panEffect != null) {
             panEffect.panWorldObject(screenX, screenY, this);
         }
     }
 
-    public void update(double secondsPerFrame, ArrayList<WorldObject> objects) {
+    public void update(double secondsPerFrame/*, ArrayList<WorldObject> objects*/) {
         if (control != null) {
             control.update(this, secondsPerFrame);
-            WorldObject collision = null;
-            for (WorldObject other : objects) {
-                if (checkCollisionWith(other)) {
-                    collision = other;
-                    break;
-                }
+        }
+        if (this.velocity != null) {
+            this.nextX = this.x + this.velocity.x * secondsPerFrame;
+            this.nextY = this.y + this.velocity.y * secondsPerFrame;
+
+            if (this.objectRepository != null) {
+                checkCollisions(this.objectRepository.getObstacles());
             }
-            if (collision == null) {
-                this.x = this.nextX;
-                this.y = this.nextY;
-            } else {
-                boolean xWithin = this.x > collision.getX() && this.x < collision.getX() + collision.getBoundWidth();
-                boolean yWithin = this.y > collision.getY() - collision.getBoundHeight() && this.y < collision.getY();
-                if (xWithin && !yWithin) {
-                    this.x = this.nextX;
-                } else
-                if (yWithin && !xWithin) {
-                    this.y = this.nextY;
-                }
+        }
+    }
+
+    public void applyUpdate(){
+        this.x = this.nextX;
+        this.y = this.nextY;
+    }
+
+    private void checkCollisions(ArrayList<WorldObject> objects) {
+        WorldObject collision = null;
+        for (WorldObject other : objects) {
+            if (checkCollisionWith(other)) {
+                collision = other;
+                break;
+            }
+        }
+        if (collision != null) {
+            Rect otherBounds = collision.getBounds();
+            boolean xWithin = this.x > collision.getX() + otherBounds.left && this.x < collision.getX() + otherBounds.right;
+            boolean yWithin = this.y > collision.getY() + otherBounds.top && this.y < collision.getY() + otherBounds.bottom;
+            if (!(xWithin && !yWithin)) {
+                this.nextX = x;
+            } else
+            if (!(yWithin && !xWithin)) {
+                this.nextY = this.y;
             }
         }
     }
@@ -127,18 +124,33 @@ public class WorldObject {
         if (other == this) {
             return false;
         }
-        if (other.getBoundWidth() != null) {
-            boolean xWithin = this.nextX > other.getX() && this.nextX < other.getX() + other.getBoundWidth();
-            boolean yWithin = this.nextY > other.getY() - other.getBoundHeight() && this.nextY < other.getY();
+        if (other.getBounds() != null) {
+            Rect otherBounds = other.getBounds();
+            boolean xWithin = this.nextX > other.getX() + otherBounds.left && this.nextX < other.getX() + otherBounds.right;
+            boolean yWithin = this.nextY > other.getY() + otherBounds.top && this.nextY < other.getY() + otherBounds.bottom;
             return xWithin && yWithin;
         } else {
             return false;
         }
     }
 
-    /*
-    public void applyScreenPosition(double screenX, double screenY) {
-        sprite.setPosition(x - screenX, y - screenY);
-        //return (getX() + ofs - screenX) * factor;
-    }*/
+    public Rect getBounds() {
+        return bounds;
+    }
+
+    public void setBounds(Rect bounds) {
+        this.bounds = bounds;
+    }
+
+    public PointF getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(PointF velocity) {
+        this.velocity = velocity;
+    }
+
+    public void setObjectRepository(WorldObjectRepository objectRepository) {
+        this.objectRepository = objectRepository;
+    }
 }

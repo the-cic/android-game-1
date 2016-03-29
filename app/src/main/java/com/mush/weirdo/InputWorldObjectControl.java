@@ -1,5 +1,8 @@
 package com.mush.weirdo;
 
+import android.graphics.Point;
+import android.graphics.PointF;
+
 /**
  * Created by mirko on 20/03/2016.
  */
@@ -13,7 +16,10 @@ public class InputWorldObjectControl implements WorldObjectControl {
 
     @Override
     public void update(WorldObject object, double secondsPerFrame) {
-        object.setNextX(object.getX() + controls.getHorizontalDirection() * secondsPerFrame * 30);
-        object.setNextY(object.getY() - controls.getVerticalDirection() * secondsPerFrame * 30);
+        PointF objectVelocity = object.getVelocity();
+        if (objectVelocity != null) {
+            objectVelocity.x = (float) (controls.getHorizontalDirection() * 30);
+            objectVelocity.y = (float) - (controls.getVerticalDirection() * 30);
+        }
     }
 }
