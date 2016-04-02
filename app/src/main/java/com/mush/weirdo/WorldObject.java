@@ -118,6 +118,7 @@ public class WorldObject {
         }
         if (collision != null) {
             Rect otherBounds = collision.getBounds();
+            /*
             boolean xWithin = this.x > collision.getX() + otherBounds.left && this.x < collision.getX() + otherBounds.right;
             boolean yWithin = this.y > collision.getY() + otherBounds.top && this.y < collision.getY() + otherBounds.bottom;
             if (!(xWithin && !yWithin)) {
@@ -125,7 +126,9 @@ public class WorldObject {
             } else
             if (!(yWithin && !xWithin)) {
                 this.nextY = this.y;
-            }
+            }*/
+            this.nextX = x;
+            this.nextY = this.y;
         }
     }
 
@@ -135,12 +138,30 @@ public class WorldObject {
         }
         if (other.getBounds() != null) {
             Rect otherBounds = other.getBounds();
-            boolean xWithin = this.nextX > other.getX() + otherBounds.left && this.nextX < other.getX() + otherBounds.right;
-            boolean yWithin = this.nextY > other.getY() + otherBounds.top && this.nextY < other.getY() + otherBounds.bottom;
-            return xWithin && yWithin;
+            double otherX1 = other.getX() + otherBounds.left;
+            double otherY1 = other.getY() + otherBounds.top;
+            double otherX2 = other.getX() + otherBounds.right;
+            double otherY2 = other.getY() + otherBounds.bottom;
+
+            if (this.bounds == null) {
+                return checkPointCollisionWith(this.nextX, this.nextY, otherX1, otherY1, otherX2, otherY2);
+            } else {
+                boolean hit = false;
+                hit |= checkPointCollisionWith(this.nextX + bounds.left, this.nextY + bounds.top, otherX1, otherY1, otherX2, otherY2);
+                hit |= checkPointCollisionWith(this.nextX + bounds.right, this.nextY + bounds.top, otherX1, otherY1, otherX2, otherY2);
+                hit |= checkPointCollisionWith(this.nextX + bounds.left, this.nextY + bounds.bottom, otherX1, otherY1, otherX2, otherY2);
+                hit |= checkPointCollisionWith(this.nextX + bounds.right, this.nextY + bounds.bottom, otherX1, otherY1, otherX2, otherY2);
+                return hit;
+            }
         } else {
             return false;
         }
+    }
+
+    private boolean checkPointCollisionWith(double pX, double pY, double otherX1, double otherY1, double otherX2, double otherY2) {
+        boolean xWithin = pX > otherX1 && pX < otherX2;
+        boolean yWithin = pY > otherY1 && pY < otherY2;
+        return xWithin && yWithin;
     }
 
     public Rect getBounds() {

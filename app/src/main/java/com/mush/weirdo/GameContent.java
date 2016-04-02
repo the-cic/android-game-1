@@ -78,6 +78,7 @@ public class GameContent {
         Sprite weirdo = new Sprite(new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4}));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
+        player.setBounds((int)(-weirdo.getWidth()*0.2), -(int) (weirdo.getHeight() * 0.1), (int)(weirdo.getWidth()*0.2), 0);
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
         player.setVelocity(new PointF());
