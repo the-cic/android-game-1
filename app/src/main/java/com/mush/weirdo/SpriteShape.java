@@ -8,6 +8,8 @@ import android.graphics.Point;
  */
 public interface SpriteShape {
 
+    void update(double secondsPerFrame);
+
     void draw(double x, double y, Canvas canvas);
 
     Point getPivot();

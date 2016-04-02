@@ -2,8 +2,11 @@ package com.mush.weirdo;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
@@ -27,10 +30,15 @@ public class GameContent {
     private double targetPanX;
     private double panSpeed;
     private int panDirection;
+    private Paint paint;
 
     public GameContent(Resources resources) {
         controls = new GameControls();
         comparator = new WorldObjectDistanceComparator();
+        paint = new Paint();
+
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
 
         objectRepository = new WorldObjectRepository();
 
@@ -66,8 +74,9 @@ public class GameContent {
         wall.setBounds(0, (int) (-wallShape.getHeight() * 0.2), wallShape.getWidth(), 0);
         objectRepository.add(wall);
 
-        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
-        weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth()/2, weirdo.getHeight()));
+        //Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo_stand));
+        Sprite weirdo = new Sprite(new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4}));
+        weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setX(GamePanel.WIDTH * 0.35);
         player.setY(GROUND_Y);
@@ -164,6 +173,16 @@ public class GameContent {
 
         for (WorldObject worldObject : objects) {
             worldObject.getSprite().draw(canvas);
+
+            if (worldObject.getBounds() != null) {
+                Rect bounds = worldObject.getBounds();
+                canvas.drawRect(
+                        (float)(worldObject.getSprite().getX() + bounds.left),
+                        (float)(worldObject.getSprite().getY() + bounds.top),
+                        (float)(worldObject.getSprite().getX() + bounds.right),
+                        (float)(worldObject.getSprite().getY() + bounds.bottom),
+                        paint);
+            }
         }
     }
 

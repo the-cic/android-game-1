@@ -30,6 +30,9 @@ public class ThreePartSpriteShape implements SpriteShape {
     }
 
     @Override
+    public void update(double secondsPerFrame) {}
+
+    @Override
     public void draw(double x0, double y0, Canvas canvas) {
         float x = (float)(x0 - pivot.x);
         float y = (float)(y0 - pivot.y);

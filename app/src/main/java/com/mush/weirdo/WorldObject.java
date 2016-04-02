@@ -74,13 +74,22 @@ public class WorldObject {
         return y;
     }
 
+    public boolean isMoving() {
+        if (this.velocity == null) {
+            return false;
+        }
+        return this.velocity.x != 0 || this.velocity.y != 0;
+    }
+
     public void applyScreenPan(double screenX, double screenY) {
         if (panEffect != null) {
             panEffect.panWorldObject(screenX, screenY, this);
         }
     }
 
-    public void update(double secondsPerFrame/*, ArrayList<WorldObject> objects*/) {
+    public void update(double secondsPerFrame) {
+        this.getSprite().getShape().update(secondsPerFrame);
+
         if (control != null) {
             control.update(this, secondsPerFrame);
         }

@@ -13,16 +13,16 @@ public class Sprite {
     private double x;
     private double y;
     private SpriteShape shape;
-    Paint paint;
-
+    private Paint paint;
+    private boolean flipX;
 
     public Sprite(SpriteShape shape) {
         this.shape = shape;
+        this.flipX = false;
         paint = new Paint();
 
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
-
     }
 
     public void setShape(SpriteShape shape){
@@ -46,6 +46,10 @@ public class Sprite {
         this.y = y;
     }
 
+    public void setFlipX(boolean flipX) {
+        this.flipX = flipX;
+    }
+
     public int getWidth(){
         return shape.getWidth();
     }
@@ -55,8 +59,17 @@ public class Sprite {
     }
 
     public void draw(Canvas canvas){
+        final int savedState = flipX ? canvas.save() : 0;
+        if (flipX) {
+            canvas.scale(-1, 1, (float)x, (float)y);
+        }
+
         shape.draw(x, y, canvas);
         canvas.drawCircle((float)x, (float)y, 1, paint);
+
+        if (flipX) {
+            canvas.restoreToCount(savedState);
+        }
     }
 
     public boolean isVisible(){

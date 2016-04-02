@@ -23,6 +23,9 @@ public class ImageSpriteShape implements SpriteShape {
     }
 
     @Override
+    public void update(double secondsPerFrame) {}
+
+    @Override
     public void draw(double x, double y, Canvas canvas) {
         if (pivot != null) {
             canvas.drawBitmap(image, (float) (x - pivot.x), (float) (y - pivot.y), null);
