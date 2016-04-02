@@ -53,11 +53,36 @@ public class GameControls {
             directionY = offsetY / length;
             firstTouchX = (float)((firstTouchX + offsetX) - directionX * 6);
             firstTouchY = (float)((firstTouchY + offsetY) - directionY * 6);
+            makeDirection8Way();
         } else {
             directionX = 0;
             directionY = 0;
         }
         dirty = false;
+    }
+
+    private void makeDirection8Way() {
+        // 1/sqrt(2)
+        final double angle = 0.7;
+        final double halfAngle = angle * 0.5;
+        if (directionX > halfAngle) {
+            directionX = 1;
+        } else if (directionX < -halfAngle) {
+            directionX = -1;
+        } else {
+            directionX = 0;
+        }
+        if (directionY > halfAngle) {
+            directionY = 1;
+        } else if (directionY < -halfAngle) {
+            directionY = -1;
+        } else {
+            directionY = 0;
+        }
+        if (directionX != 0 && directionY != 0) {
+            directionX *= angle;
+            directionY *= angle;
+        }
     }
 
     public double getHorizontalDirection(){
