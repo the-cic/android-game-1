@@ -1,8 +1,10 @@
-package com.mush.weirdo;
+package com.mush.weirdo.sprites;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
+import com.mush.weirdo.GameContentView;
 
 /**
  * Any thing displayed on screen
@@ -72,7 +74,7 @@ public class Sprite {
         }
     }
 
-    public boolean isVisible(){
-        return x + shape.getWidth() > 0 && x < GamePanel.WIDTH;
+    public boolean isVisible(int WIDTH){
+        return x + shape.getWidth() > 0 && x < WIDTH;
     }
 }

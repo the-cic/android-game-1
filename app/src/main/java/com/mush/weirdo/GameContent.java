@@ -9,14 +9,27 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 
+import com.mush.weirdo.screenpan.CycleScreenPanEffect;
+import com.mush.weirdo.screenpan.FollowScreenPanEffect;
+import com.mush.weirdo.screenpan.ParallaxScreenPanEffect;
+import com.mush.weirdo.screenpan.ScreenPanEffect;
+import com.mush.weirdo.sprites.AnimatedSpriteShape;
+import com.mush.weirdo.sprites.ImageSpriteShape;
+import com.mush.weirdo.sprites.Sprite;
+import com.mush.weirdo.sprites.SpriteShape;
+import com.mush.weirdo.sprites.ThreePartSpriteShape;
+import com.mush.weirdo.worldobjectcontrol.InputWorldObjectControl;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
  * Created by mirko on 03/03/2016.
  */
 public class GameContent {
+    public static final int WIDTH = 180;
+    public static final int HEIGHT = 100;
+
     private static final int HORIZON_Y = 40;
     private static final int GROUND_Y = HORIZON_Y + 3;
     private static final int BOTTOM_Y = 50;
@@ -76,10 +89,11 @@ public class GameContent {
 
         //Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo_stand));
         Sprite weirdo = new Sprite(new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4}));
+//        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setBounds((int)(-weirdo.getWidth()*0.2), -(int) (weirdo.getHeight() * 0.1), (int)(weirdo.getWidth()*0.2), 0);
-        player.setX(GamePanel.WIDTH * 0.35);
+        player.setX(WIDTH * 0.35);
         player.setY(GROUND_Y);
         player.setVelocity(new PointF());
         player.setObjectRepository(this.objectRepository);
@@ -97,12 +111,12 @@ public class GameContent {
 
     public void update(double secondsPerFrame) {
         if (panDirection == 0) {
-            if (player.getSprite().getX() > GamePanel.WIDTH * 0.75) {
-                targetPanX += GamePanel.WIDTH * 0.45;
+            if (player.getSprite().getX() > WIDTH * 0.75) {
+                targetPanX += WIDTH * 0.45;
                 panDirection = 1;
             }
-            if (player.getSprite().getX() < GamePanel.WIDTH * 0.25) {
-                targetPanX -= GamePanel.WIDTH * 0.45;
+            if (player.getSprite().getX() < WIDTH * 0.25) {
+                targetPanX -= WIDTH * 0.45;
                 panDirection = -1;
                 if (targetPanX < 0) {
                     targetPanX = 0;
@@ -134,7 +148,7 @@ public class GameContent {
                 ScreenPanEffect panEffect = worldObject.getPanEffect();
                 if (panEffect instanceof ParallaxScreenPanEffect) {
                     double factor = ((ParallaxScreenPanEffect)panEffect).getFactor();
-                    worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()*0.2)) / factor));
+                    worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random()*0.2)) / factor));
                 }
             }
             worldObject.applyScreenPan(panX, 0);
@@ -142,7 +156,7 @@ public class GameContent {
 
         for (WorldObject worldObject : this.objectRepository.getObjects()) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
-                worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + GamePanel.WIDTH * (1 + Math.random()))));
+                worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random()))));
             }
             worldObject.applyScreenPan(panX, 0);
         }
@@ -162,7 +176,32 @@ public class GameContent {
         player.applyScreenPan(panX, 0);
     }
 
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, float viewWidth, float viewHeight) {
+        final float scaleFactorX = viewWidth / WIDTH;
+        final float scaleFactorY = viewHeight / HEIGHT;
+        final float scaleFactor = Math.min(scaleFactorX, scaleFactorY);
+        final float offsetX;
+        final float offsetY;
+
+        if (scaleFactorX > scaleFactorY) {
+            offsetX = (viewWidth - WIDTH * scaleFactor) / 2;
+            offsetY = 0;
+        } else {
+            offsetX = 0;
+            offsetY = (viewHeight - HEIGHT * scaleFactor) / 2;
+        }
+
+        final int savedState = canvas.save();
+        canvas.translate(offsetX, offsetY);
+        canvas.clipRect(0, 0, viewWidth - offsetX * 2, viewHeight - offsetY * 2);
+        canvas.scale(scaleFactor, scaleFactor);
+
+        this.draw(canvas);
+
+        canvas.restoreToCount(savedState);
+    }
+
+    private void draw(Canvas canvas) {
 
         for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             worldObject.getSprite().draw(canvas);
@@ -200,7 +239,7 @@ public class GameContent {
 
         Sprite sprite = new Sprite(shape);
 
-        return new WorldObject(sprite, offset * GamePanel.WIDTH, GROUND_Y, CycleScreenPanEffect.INSTANCE, null);
+        return new WorldObject(sprite, offset * WIDTH, GROUND_Y, CycleScreenPanEffect.INSTANCE, null);
     }
 
     private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {
@@ -209,7 +248,7 @@ public class GameContent {
 
         Sprite sprite = new Sprite(shape);
 
-        double firstX = ((Math.random() * 0.5 + 0.2) * GamePanel.WIDTH) / factor;
+        double firstX = ((Math.random() * 0.5 + 0.2) * WIDTH) / factor;
 
         return new WorldObject(sprite, firstX, HORIZON_Y, new ParallaxScreenPanEffect(factor), null);
     }

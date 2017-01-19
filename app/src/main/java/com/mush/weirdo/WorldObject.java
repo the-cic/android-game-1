@@ -3,6 +3,10 @@ package com.mush.weirdo;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import com.mush.weirdo.screenpan.ScreenPanEffect;
+import com.mush.weirdo.sprites.Sprite;
+import com.mush.weirdo.worldobjectcontrol.WorldObjectControl;
+
 import java.util.ArrayList;
 
 /**

@@ -1,7 +1,11 @@
-package com.mush.weirdo;
+package com.mush.weirdo.worldobjectcontrol;
 
-import android.graphics.Point;
 import android.graphics.PointF;
+
+import com.mush.weirdo.GameControls;
+import com.mush.weirdo.WorldObject;
+import com.mush.weirdo.sprites.AnimatedSpriteShape;
+import com.mush.weirdo.sprites.SpriteShape;
 
 /**
  * Created by mirko on 20/03/2016.
@@ -19,16 +23,17 @@ public class InputWorldObjectControl implements WorldObjectControl {
         PointF objectVelocity = object.getVelocity();
         if (objectVelocity != null) {
             boolean wasMoving = object.isMoving();
+            SpriteShape objectShape = object.getSprite().getShape();
 
             objectVelocity.x = (float) (controls.getHorizontalDirection() * 30);
             objectVelocity.y = (float) - (controls.getVerticalDirection() * 30);
 
             boolean isMovingNow = object.isMoving();
-            if (isMovingNow != wasMoving) {
+            if (isMovingNow != wasMoving && objectShape instanceof AnimatedSpriteShape) {
                 if (isMovingNow) {
-                    ((AnimatedSpriteShape)object.getSprite().getShape()).playSequence(1, 0.1);
+                    ((AnimatedSpriteShape)objectShape).playSequence(1, 0.1);
                 } else {
-                    ((AnimatedSpriteShape)object.getSprite().getShape()).playSequence(0, 0.1);
+                    ((AnimatedSpriteShape)objectShape).playSequence(0, 0.1);
                 }
             }
             if (objectVelocity.x != 0) {

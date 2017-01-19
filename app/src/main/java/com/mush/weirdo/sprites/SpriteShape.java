@@ -1,4 +1,4 @@
-package com.mush.weirdo;
+package com.mush.weirdo.sprites;
 
 import android.graphics.Canvas;
 import android.graphics.Point;

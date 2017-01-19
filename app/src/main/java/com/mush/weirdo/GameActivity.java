@@ -9,7 +9,7 @@ import android.view.WindowManager;
 
 public class GameActivity extends Activity {
 
-    GamePanel gamePanel;
+    GameContentView gameContentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,11 +22,11 @@ public class GameActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
 
-        if (gamePanel == null) {
-            gamePanel = new GamePanel(this);
+        if (gameContentView == null) {
+            gameContentView = new GameContentView(this);
         }
 
-        setContentView(gamePanel);
+        setContentView(gameContentView);
     }
 
     @Override

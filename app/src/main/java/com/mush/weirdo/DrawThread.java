@@ -6,7 +6,7 @@ import android.view.SurfaceHolder;
 /**
  * Created by mirko on 03/03/2016.
  */
-public class MainThread extends Thread {
+public class DrawThread extends Thread {
 
     private static final long NANOS_PER_MILLISECOND = 1000000;
     private static final long NANOS_PER_SECOND = 1000 * NANOS_PER_MILLISECOND;
@@ -14,26 +14,14 @@ public class MainThread extends Thread {
     public int FPS = 30;
     private double averageFPS;
     private SurfaceHolder surfaceHolder;
-    private GamePanel gamePanel;
+    private GameContentView gameContentView;
     private boolean running;
-    private static Canvas canvas;
+//    private static Canvas canvas;
 
-//    private DrawWorkerThread[] workerThreads;
-
-    public MainThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
+    public DrawThread(SurfaceHolder surfaceHolder1, GameContentView gameContentView1) {
         super();
-        this.surfaceHolder = surfaceHolder;
-        this.gamePanel = gamePanel;
-//        this.workerThreads = new DrawWorkerThread[] {
-//                new DrawWorkerThread(gamePanel, 0),
-//                new DrawWorkerThread(gamePanel, 1),
-//                new DrawWorkerThread(gamePanel, 2),
-//                new DrawWorkerThread(gamePanel, 3)
-//        };
-//
-//        for (DrawWorkerThread worker : workerThreads) {
-//            worker.start();
-//        }
+        this.surfaceHolder = surfaceHolder1;
+        this.gameContentView = gameContentView1;
     }
 
     @Override
@@ -69,7 +57,7 @@ public class MainThread extends Thread {
             }
 
             try {
-                this.sleep(waitTime);
+                Thread.sleep(waitTime);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -81,9 +69,6 @@ public class MainThread extends Thread {
                 averageFPS = NANOS_PER_SECOND / (totalTime / frameCount);
                 frameCount = 0;
                 totalTime = 0;
-//                System.out.println("fps:"+averageFPS);
-//                System.out.println("e:"+elapsedTime + "t:"+targetTime);
-//                System.out.println("w:"+waitTime);
             }
         }
 
@@ -91,28 +76,17 @@ public class MainThread extends Thread {
     }
 
     private void updateAndDraw(long elapsedTime) {
-        canvas = null;
+        Canvas canvas = null;
         double elapsedSeconds = (double) elapsedTime / NANOS_PER_SECOND;
 
         try {
-            //canvas = this.surfaceHolder.lockCanvas();
             canvas = this.surfaceHolder.lockCanvas();
             synchronized (surfaceHolder) {
-//                this.gamePanel.processInput();
-                this.gamePanel.update(elapsedSeconds);
-                this.gamePanel.draw(canvas);
-
-//                for (DrawWorkerThread worker : workerThreads) {
-//                    worker.setCanvas(canvas);
-//                    worker.interrupt();
-//                }
-//
-//                while (!(workerThreads[0].isIdle() && workerThreads[1].isIdle() && workerThreads[2].isIdle() && workerThreads[3].isIdle())) {
-//                    this.sleep(1);
-//                }
+                this.gameContentView.update(elapsedSeconds);
+                this.gameContentView.draw(canvas);
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             if (canvas != null) {
                 try {
@@ -122,16 +96,10 @@ public class MainThread extends Thread {
                 }
             }
         }
-
     }
 
     public void setRunning(boolean b) {
         running = b;
-//        if (!running) {
-//            for (DrawWorkerThread worker : workerThreads) {
-//                worker.setRunning(false);
-//            }
-//        }
     }
 
     public double getAverageFPS() {
