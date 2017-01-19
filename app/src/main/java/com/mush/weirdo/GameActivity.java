@@ -7,7 +7,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
-public class Game extends Activity {
+public class GameActivity extends Activity {
 
     GamePanel gamePanel;
 
