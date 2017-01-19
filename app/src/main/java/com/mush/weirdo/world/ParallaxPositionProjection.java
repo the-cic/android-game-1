@@ -14,7 +14,7 @@ public class ParallaxPositionProjection extends PositionProjection {
     }
 
     @Override
-    protected void project(float x, float y, float z, PointF dest) {
+    public void transform(float x, float y, float z, PointF dest) {
         float scale = (float) Math.pow(2, -z / halfScaleZ);
         float u = x * scale;
         float v = y * scale;

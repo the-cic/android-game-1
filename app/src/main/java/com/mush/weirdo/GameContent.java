@@ -18,6 +18,7 @@ import com.mush.weirdo.sprites.ImageSpriteShape;
 import com.mush.weirdo.sprites.Sprite;
 import com.mush.weirdo.sprites.SpriteShape;
 import com.mush.weirdo.sprites.ThreePartSpriteShape;
+import com.mush.weirdo.world.ParallaxPositionProjection;
 import com.mush.weirdo.worldobjectcontrol.InputWorldObjectControl;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class GameContent {
     private double panSpeed;
     private int panDirection;
     private Paint paint;
+    private Paint paint2;
 
     public GameContent(Resources resources) {
         controls = new GameControls();
@@ -52,6 +54,11 @@ public class GameContent {
 
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
+
+        paint2 = new Paint();
+
+        paint2.setColor(Color.GREEN);
+        paint2.setStyle(Paint.Style.STROKE);
 
         objectRepository = new WorldObjectRepository();
 
@@ -222,6 +229,21 @@ public class GameContent {
                         (float)(worldObject.getSprite().getX() + bounds.right),
                         (float)(worldObject.getSprite().getY() + bounds.bottom),
                         paint);
+            }
+        }
+
+        ParallaxPositionProjection proj = new ParallaxPositionProjection(5);
+
+        PointF p = new PointF();
+        for (int i=0; i < 10; i++) {
+            for (int j=0; j < 10; j++) {
+                float u = 10 + i * 3;
+                float v = 10 + j * 3;
+                canvas.drawRect(u, v, u+1, v+1, paint);
+
+
+                proj.transform(u-10, 10, v-10, p);
+                canvas.drawRect(100+p.x, 20 + p.y, 100+p.x+1, 20+p.y+1, paint2);
             }
         }
     }

@@ -38,7 +38,7 @@ public class IsometricPositionProjection extends PositionProjection {
     }
 
     @Override
-    protected void project(float x, float y, float z, PointF dest) {
+    public void transform(float x, float y, float z, PointF dest) {
         float u = x * xu + z * zu;
         float v = x * xv + y + z * zv;
         dest.set(u, v);

@@ -8,16 +8,5 @@ import android.graphics.PointF;
  */
 public abstract class PositionProjection {
 
-    private PointF pan = new PointF(0, 0);
-
-    public void setPan(float x, float y) {
-        this.pan.set(x, y);
-    }
-
-    protected abstract void project(float x, float y, float z, PointF dest);
-
-    public void transform(float x, float y, float z, PointF dest) {
-        project(x, y, z, dest);
-        dest.set(dest.x + pan.x, dest.y + pan.y);
-    }
+    public abstract void transform(float x, float y, float z, PointF dest);
 }
