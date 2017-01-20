@@ -1,4 +1,4 @@
-package com.mush.weirdo;
+package com.mush.weirdo.util;
 
 import android.graphics.Bitmap;
 import android.graphics.Point;

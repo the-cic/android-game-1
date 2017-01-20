@@ -8,7 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 
-import com.mush.weirdo.BitmapFrames;
+import com.mush.weirdo.util.BitmapFrames;
 
 /**
  * Created by mirko on 02/04/2016.

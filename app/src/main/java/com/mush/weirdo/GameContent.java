@@ -18,6 +18,7 @@ import com.mush.weirdo.sprites.ImageSpriteShape;
 import com.mush.weirdo.sprites.Sprite;
 import com.mush.weirdo.sprites.SpriteShape;
 import com.mush.weirdo.sprites.ThreePartSpriteShape;
+import com.mush.weirdo.util.AnimatedValue;
 import com.mush.weirdo.world.ParallaxPositionProjection;
 import com.mush.weirdo.worldobjectcontrol.InputWorldObjectControl;
 
@@ -40,10 +41,8 @@ public class GameContent {
     private GameControls controls;
     private WorldObjectDistanceComparator comparator;
 
-    private double panX;
-    private double targetPanX;
-    private double panSpeed;
-    private int panDirection;
+    private AnimatedValue pan;
+
     private Paint paint;
     private Paint paint2;
 
@@ -99,17 +98,14 @@ public class GameContent {
 //        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
-        player.setBounds((int)(-weirdo.getWidth()*0.2), -(int) (weirdo.getHeight() * 0.1), (int)(weirdo.getWidth()*0.2), 0);
+        player.setBounds((int) (-weirdo.getWidth() * 0.2), -(int) (weirdo.getHeight() * 0.1), (int) (weirdo.getWidth() * 0.2), 0);
         player.setX(WIDTH * 0.35);
         player.setY(GROUND_Y);
         player.setVelocity(new PointF());
         player.setObjectRepository(this.objectRepository);
         objectRepository.add(player);
 
-        panSpeed = 100;
-        panDirection = 0;
-        panX = 0;
-        targetPanX = 0;
+        pan = new AnimatedValue(0);
     }
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
@@ -117,38 +113,20 @@ public class GameContent {
     }
 
     public void update(double secondsPerFrame) {
-        if (panDirection == 0) {
+        if (pan.getVelocity() == 0) {
             if (player.getSprite().getX() > WIDTH * 0.75) {
-                targetPanX += WIDTH * 0.45;
-                panDirection = 1;
+                pan.transitionTo(pan.getValue() + WIDTH * 0.45, 1);
             }
             if (player.getSprite().getX() < WIDTH * 0.25) {
-                targetPanX -= WIDTH * 0.45;
-                panDirection = -1;
-                if (targetPanX < 0) {
-                    targetPanX = 0;
-                    panDirection = 0;
+                double panTo = pan.getValue() - WIDTH * 0.45;
+                if (panTo < 0) {
+                    panTo = 0;
                 }
-            }
-        } else {
-            if (panDirection == 1) {
-                if (panX < targetPanX) {
-                    panX += panSpeed * secondsPerFrame;
-                } else {
-                    panDirection = 0;
-                }
-            } else
-            if (panDirection == -1) {
-                if (panX > targetPanX) {
-                    panX -= panSpeed * secondsPerFrame;
-                } else {
-                    panDirection = 0;
-                }
+                pan.transitionTo(panTo, 3);
             }
         }
-        if (panX < 0) {
-            panX = 0;
-        }
+        pan.update(secondsPerFrame);
+
 
         for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
@@ -158,14 +136,14 @@ public class GameContent {
                     worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random()*0.2)) / factor));
                 }
             }
-            worldObject.applyScreenPan(panX, 0);
+            worldObject.applyScreenPan(pan.getValue(), 0);
         }
 
         for (WorldObject worldObject : this.objectRepository.getObjects()) {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random()))));
             }
-            worldObject.applyScreenPan(panX, 0);
+            worldObject.applyScreenPan(pan.getValue(), 0);
         }
 
         player.update(secondsPerFrame);
@@ -180,7 +158,7 @@ public class GameContent {
         if (player.getY() > BOTTOM_Y*2) {
             player.setY(BOTTOM_Y*2);
         }
-        player.applyScreenPan(panX, 0);
+        player.applyScreenPan(pan.getValue(), 0);
     }
 
     public void draw(Canvas canvas, float viewWidth, float viewHeight) {
