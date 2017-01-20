@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 
+import com.mush.weirdo.BitmapFrames;
+
 /**
  * Created by mirko on 02/04/2016.
  */
@@ -17,7 +19,7 @@ public class AnimatedSpriteShape implements SpriteShape {
     private int height;
     private Point pivot;
 
-    private Bitmap[][] sequences;
+    private BitmapFrames[] framesList;
     private int sequenceIndex;
     private int sequenceLength;
     private int frameIndex;
@@ -30,35 +32,21 @@ public class AnimatedSpriteShape implements SpriteShape {
         this.height = frameHeight;
         this.sequenceIndex = 0;
         this.frameIndex = 0;
-        sequences = new Bitmap[sequenceLengths.length][];
+        framesList = new BitmapFrames[sequenceLengths.length];
         Bitmap source = BitmapFactory.decodeResource(resources, resourceId);
 
         for (int s = 0; s < sequenceLengths.length; s ++) {
-            Bitmap[] sequence = new Bitmap[sequenceLengths[s]];
-            for (int f = 0; f < sequenceLengths[s]; f ++) {
-                sequence[f] = cutFrameFromBitmap(source, s, f);
-            }
-            sequences[s] = sequence;
+            BitmapFrames frames = new BitmapFrames(source, frameWidth, frameHeight, s, 0, BitmapFrames.Direction.DOWN, BitmapFrames.Direction.RIGHT, sequenceLengths[s]);
+            framesList[s] = frames;
         }
 
         playSequence(0, 1);
     }
 
-    private Bitmap cutFrameFromBitmap(Bitmap source, int xIndex, int yIndex){
-        int x = xIndex * width;
-        int y = yIndex * height;
-        try {
-            Bitmap frame = Bitmap.createBitmap(source, x, y, width, height);
-            return frame;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     @Override
     public void draw(double x, double y, Canvas canvas) {
         try {
-            Bitmap image = sequences[sequenceIndex][frameIndex];
+            Bitmap image = framesList[sequenceIndex].getFrame(frameIndex);
             drawFrame(image, x, y, canvas);
         } catch (Exception e) {
             drawFrame(null, x, y, canvas);
@@ -89,7 +77,7 @@ public class AnimatedSpriteShape implements SpriteShape {
 
     public void playSequence(int sequenceId, double frameDuration) {
         this.sequenceIndex = sequenceId;
-        this.sequenceLength = this.sequences[this.sequenceIndex].length;
+        this.sequenceLength = this.framesList[this.sequenceIndex].getFrameCount();
         this.frameDuration = frameDuration;
         this.frameIndex = 0;
         this.frameShownTime = 0;
