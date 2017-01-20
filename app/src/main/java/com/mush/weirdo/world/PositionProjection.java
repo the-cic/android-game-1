@@ -9,4 +9,8 @@ import android.graphics.PointF;
 public abstract class PositionProjection {
 
     public abstract void transform(float x, float y, float z, PointF dest);
+
+    public void transform(Point3F p, PointF dest) {
+        transform(p.x, p.y, p.z, dest);
+    }
 }

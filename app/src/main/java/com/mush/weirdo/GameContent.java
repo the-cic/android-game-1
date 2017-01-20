@@ -20,6 +20,11 @@ import com.mush.weirdo.sprites.SpriteShape;
 import com.mush.weirdo.sprites.ThreePartSpriteShape;
 import com.mush.weirdo.util.AnimatedValue;
 import com.mush.weirdo.world.ParallaxPositionProjection;
+import com.mush.weirdo.world.Point3F;
+import com.mush.weirdo.world.PositionProjection;
+import com.mush.weirdo.world.SpaceNode;
+import com.mush.weirdo.world.SpaceObject;
+import com.mush.weirdo.world.TilingPositionProjection;
 import com.mush.weirdo.worldobjectcontrol.InputWorldObjectControl;
 
 import java.util.ArrayList;
@@ -41,6 +46,14 @@ public class GameContent {
     private GameControls controls;
     private WorldObjectDistanceComparator comparator;
 
+    private SpaceNode rootNode;
+    private PositionProjection parallaxProjection;
+    private PositionProjection tileProjection;
+
+    private ArrayList<SpaceObject> fixedBgObjects;
+    private ArrayList<SpaceObject> tilingBgObjects;
+    private ArrayList<SpaceObject> parallaxObjects;
+
     private AnimatedValue pan;
 
     private Paint paint;
@@ -61,18 +74,18 @@ public class GameContent {
 
         objectRepository = new WorldObjectRepository();
 
-        objectRepository.addBackground(createFixedHorizonBackground(resources, R.drawable.horizon));
+//        objectRepository.addBackground(createFixedHorizonBackground(resources, R.drawable.horizon));
 
-        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_far, 0.1));
-        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_far, 0.15));
-        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_near, 0.2));
-        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.3, HORIZON_Y * 0.5));
-        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.35, HORIZON_Y * 0.4));
-        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_near, 0.4));
-        objectRepository.addBackground(createHorizonObject(resources, R.drawable.trees_far, 0.5));
+//        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_far, 0.1));
+//        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_far, 0.15));
+//        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_mid_near, 0.2));
+//        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.3, HORIZON_Y * 0.5));
+//        objectRepository.addBackground(createFloatingHorizonObject(resources, R.drawable.cloud, 0.35, HORIZON_Y * 0.4));
+//        objectRepository.addBackground(createHorizonObject(resources, R.drawable.mountains_near, 0.4));
+//        objectRepository.addBackground(createHorizonObject(resources, R.drawable.trees_far, 0.5));
 
-        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
-        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
+//        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
+//        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
 
         objectRepository.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
         objectRepository.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
@@ -106,6 +119,32 @@ public class GameContent {
         objectRepository.add(player);
 
         pan = new AnimatedValue(0);
+
+
+        rootNode = new SpaceNode();
+        rootNode.localPosition.set(0, 0, 0);
+
+        fixedBgObjects = new ArrayList<>();
+        parallaxObjects = new ArrayList<>();
+        tilingBgObjects = new ArrayList<>();
+
+        int BASE = HORIZON_Y;
+
+        fixedBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.horizon), null, 0, 0, 0));
+
+        tilingBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.ground), rootNode, 0, GROUND_Y, 0));
+        tilingBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.ground), rootNode, -WIDTH, GROUND_Y, 0));
+
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_far), rootNode, 180 * 2, BASE, 40));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_far), rootNode, 180 * 1, BASE, 32));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_near), rootNode, 180 * 3, BASE, 28));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 2.5f, BASE - 90, 22));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 1, BASE - 90, 18));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
+
+        parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
+        tileProjection = new TilingPositionProjection(WIDTH, HEIGHT);
     }
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
@@ -132,8 +171,8 @@ public class GameContent {
             if (worldObject.getSprite().getX() < -worldObject.getSprite().getWidth()) {
                 ScreenPanEffect panEffect = worldObject.getPanEffect();
                 if (panEffect instanceof ParallaxScreenPanEffect) {
-                    double factor = ((ParallaxScreenPanEffect)panEffect).getFactor();
-                    worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random()*0.2)) / factor));
+                    double factor = ((ParallaxScreenPanEffect) panEffect).getFactor();
+                    worldObject.setX(worldObject.getX() + ((worldObject.getSprite().getWidth() + WIDTH * (1 + Math.random() * 0.2)) / factor));
                 }
             }
             worldObject.applyScreenPan(pan.getValue(), 0);
@@ -155,8 +194,8 @@ public class GameContent {
         if (player.getY() < GROUND_Y) {
             player.setY(GROUND_Y);
         }
-        if (player.getY() > BOTTOM_Y*2) {
-            player.setY(BOTTOM_Y*2);
+        if (player.getY() > BOTTOM_Y * 2) {
+            player.setY(BOTTOM_Y * 2);
         }
         player.applyScreenPan(pan.getValue(), 0);
     }
@@ -187,6 +226,19 @@ public class GameContent {
     }
 
     private void draw(Canvas canvas) {
+        rootNode.localPosition.set(-pan.getValue(), 0, 0);
+
+        for (SpaceObject spaceObject : fixedBgObjects) {
+            spaceObject.draw(canvas, null);
+        }
+
+        for (SpaceObject spaceObject : tilingBgObjects) {
+            spaceObject.draw(canvas, tileProjection);
+        }
+
+        for (SpaceObject spaceObject : parallaxObjects) {
+            spaceObject.draw(canvas, parallaxProjection);
+        }
 
         for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             worldObject.getSprite().draw(canvas);
@@ -202,26 +254,11 @@ public class GameContent {
             if (worldObject.getBounds() != null) {
                 Rect bounds = worldObject.getBounds();
                 canvas.drawRect(
-                        (float)(worldObject.getSprite().getX() + bounds.left),
-                        (float)(worldObject.getSprite().getY() + bounds.top),
-                        (float)(worldObject.getSprite().getX() + bounds.right),
-                        (float)(worldObject.getSprite().getY() + bounds.bottom),
+                        (float) (worldObject.getSprite().getX() + bounds.left),
+                        (float) (worldObject.getSprite().getY() + bounds.top),
+                        (float) (worldObject.getSprite().getX() + bounds.right),
+                        (float) (worldObject.getSprite().getY() + bounds.bottom),
                         paint);
-            }
-        }
-
-        ParallaxPositionProjection proj = new ParallaxPositionProjection(5);
-
-        PointF p = new PointF();
-        for (int i=0; i < 10; i++) {
-            for (int j=0; j < 10; j++) {
-                float u = 10 + i * 3;
-                float v = 10 + j * 3;
-                canvas.drawRect(u, v, u+1, v+1, paint);
-
-
-                proj.transform(u-10, 10, v-10, p);
-                canvas.drawRect(100+p.x, 20 + p.y, 100+p.x+1, 20+p.y+1, paint2);
             }
         }
     }
@@ -266,6 +303,38 @@ public class GameContent {
         Sprite sprite = new Sprite(shape);
 
         return new WorldObject(sprite, 0, y, FollowScreenPanEffect.INSTANCE, null);
+    }
+
+    private SpaceObject createSpaceObject(SpaceObject spaceObject, SpaceNode parent, float x, float y, float z) {
+        spaceObject.spaceNode.localPosition.set(x, y, z);
+
+        if (parent != null) {
+            spaceObject.spaceNode.addToNode(parent);
+        }
+
+        return spaceObject;
+    }
+
+    private SpaceObject createSpaceObject(Resources resources, int resourceId) {
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+        shape.setPivot(new Point(0, 0));
+
+        SpaceNode node = new SpaceNode();
+        SpaceObject spaceObject = new SpaceObject(node);
+        spaceObject.shape = shape;
+
+        return spaceObject;
+    }
+
+    private SpaceObject createGroundSpaceObject(Resources resources, int resourceId) {
+        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+        shape.setPivot(new Point(0, shape.getHeight()));
+
+        SpaceNode node = new SpaceNode();
+        SpaceObject spaceObject = new SpaceObject(node);
+        spaceObject.shape = shape;
+
+        return spaceObject;
     }
 
 }
