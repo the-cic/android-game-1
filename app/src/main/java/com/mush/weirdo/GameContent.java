@@ -24,6 +24,7 @@ import com.mush.weirdo.world.Point3F;
 import com.mush.weirdo.world.PositionProjection;
 import com.mush.weirdo.world.SpaceNode;
 import com.mush.weirdo.world.SpaceObject;
+import com.mush.weirdo.world.InputSpaceObjectBodyController;
 import com.mush.weirdo.world.TilingPositionProjection;
 import com.mush.weirdo.worldobjectcontrol.InputWorldObjectControl;
 
@@ -53,6 +54,8 @@ public class GameContent {
     private ArrayList<SpaceObject> fixedBgObjects;
     private ArrayList<SpaceObject> tilingBgObjects;
     private ArrayList<SpaceObject> parallaxObjects;
+    private ArrayList<SpaceObject> foregroundObjects;
+    private SpaceObject playerObject;
 
     private AnimatedValue pan;
 
@@ -107,7 +110,8 @@ public class GameContent {
         objectRepository.add(wall);
 
         //Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo_stand));
-        Sprite weirdo = new Sprite(new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4}));
+        AnimatedSpriteShape playerShape = new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4});
+        Sprite weirdo = new Sprite(playerShape);
 //        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
@@ -127,6 +131,7 @@ public class GameContent {
         fixedBgObjects = new ArrayList<>();
         parallaxObjects = new ArrayList<>();
         tilingBgObjects = new ArrayList<>();
+        foregroundObjects = new ArrayList<>();
 
         int BASE = HORIZON_Y;
 
@@ -142,6 +147,23 @@ public class GameContent {
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 1, BASE - 90, 18));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
+
+        SpaceNode playerNode = new SpaceNode();
+        playerNode.localPosition.set(WIDTH * 0.4f, GROUND_Y, 0);
+        playerNode.addToNode(rootNode);
+
+        playerObject = new SpaceObject(playerNode);
+
+        playerObject.shape = new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4});
+        playerObject.shape.setPivot(new Point(playerObject.shape.getWidth() / 2, playerObject.shape.getHeight()));
+
+        playerObject.setupBody(new Rect(
+                (int) (-playerObject.shape.getWidth() * 0.2),
+                -(int) (playerObject.shape.getHeight() * 0.1),
+                (int) (playerObject.shape.getWidth() * 0.2),
+                0));
+        playerObject.body.setController(new InputSpaceObjectBodyController(controls, playerObject));
+
 
         parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
         tileProjection = new TilingPositionProjection(WIDTH, HEIGHT);
@@ -198,6 +220,8 @@ public class GameContent {
             player.setY(BOTTOM_Y * 2);
         }
         player.applyScreenPan(pan.getValue(), 0);
+
+        playerObject.update(secondsPerFrame);
     }
 
     public void draw(Canvas canvas, float viewWidth, float viewHeight) {
@@ -239,6 +263,8 @@ public class GameContent {
         for (SpaceObject spaceObject : parallaxObjects) {
             spaceObject.draw(canvas, parallaxProjection);
         }
+
+        playerObject.draw(canvas, null);
 
         for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             worldObject.getSprite().draw(canvas);

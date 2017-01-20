@@ -104,6 +104,13 @@ public class Point3F implements Parcelable {
     }
 
     /**
+     * @return true if all coordinates are 0
+     */
+    public final boolean isZero() {
+        return x == 0 && y == 0 && z == 0;
+    }
+
+    /**
      * Returns the euclidian distance from (0,0) to (x,y)
      */
     public static float length(float x, float y, float z) {
