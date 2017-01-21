@@ -55,7 +55,7 @@ public class BitmapFrames {
         int yWrapStep = wOfs.y * height;
 
         for (int i = 0; i < tileCount; i++) {
-            System.out.println("create " + i + " " + x + " " + y);
+//            System.out.println("create " + i + " " + x + " " + y);
             frames[i] = Bitmap.createBitmap(source, x, y, width, height);
 
             if (i + 1 < tileCount) {
@@ -96,7 +96,7 @@ public class BitmapFrames {
                 if (y < 0 || y + height > source.getHeight()) {
                     throw new RuntimeException("BitmapFrames source size");
                 }
-                System.out.println("next y " + y);
+//                System.out.println("next y " + y);
             }
         }
     }

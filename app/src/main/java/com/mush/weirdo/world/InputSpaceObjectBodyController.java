@@ -21,6 +21,7 @@ public class InputSpaceObjectBodyController extends SpaceObjectBodyController {
     @Override
     public void affectVelocity(Point3F velocity) {
         velocity.x = (float) (controls.getHorizontalDirection() * 30);
-        velocity.y = (float) -(controls.getVerticalDirection() * 30);
+        velocity.z = (float) -(controls.getVerticalDirection() * 30);
+        //velocity.z = velocity.y;
     }
 }

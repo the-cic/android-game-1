@@ -1,6 +1,7 @@
 package com.mush.weirdo;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,6 +20,8 @@ import com.mush.weirdo.sprites.Sprite;
 import com.mush.weirdo.sprites.SpriteShape;
 import com.mush.weirdo.sprites.ThreePartSpriteShape;
 import com.mush.weirdo.util.AnimatedValue;
+import com.mush.weirdo.util.SpaceObjectZComparator;
+import com.mush.weirdo.world.IsometricPositionProjection;
 import com.mush.weirdo.world.ParallaxPositionProjection;
 import com.mush.weirdo.world.Point3F;
 import com.mush.weirdo.world.PositionProjection;
@@ -50,12 +53,14 @@ public class GameContent {
     private SpaceNode rootNode;
     private PositionProjection parallaxProjection;
     private PositionProjection tileProjection;
+    private PositionProjection isometricProjection;
 
     private ArrayList<SpaceObject> fixedBgObjects;
     private ArrayList<SpaceObject> tilingBgObjects;
     private ArrayList<SpaceObject> parallaxObjects;
     private ArrayList<SpaceObject> foregroundObjects;
     private SpaceObject playerObject;
+    private SpaceObjectZComparator zComparator;
 
     private AnimatedValue pan;
 
@@ -65,6 +70,7 @@ public class GameContent {
     public GameContent(Resources resources) {
         controls = new GameControls();
         comparator = new WorldObjectDistanceComparator();
+        zComparator = new SpaceObjectZComparator();
         paint = new Paint();
 
         paint.setColor(Color.RED);
@@ -109,10 +115,8 @@ public class GameContent {
         wall.setBounds(0, (int) (-wallShape.getHeight() * 0.2), wallShape.getWidth(), 0);
         objectRepository.add(wall);
 
-        //Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo_stand));
         AnimatedSpriteShape playerShape = new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4});
         Sprite weirdo = new Sprite(playerShape);
-//        Sprite weirdo = new Sprite(new ImageSpriteShape(resources, R.drawable.weirdo));
         weirdo.getShape().setPivot(new Point(weirdo.getShape().getWidth() / 2, weirdo.getHeight()));
         player = new WorldObject(weirdo, 0, 0, FollowScreenPanEffect.INSTANCE, new InputWorldObjectControl(controls));
         player.setBounds((int) (-weirdo.getWidth() * 0.2), -(int) (weirdo.getHeight() * 0.1), (int) (weirdo.getWidth() * 0.2), 0);
@@ -148,8 +152,20 @@ public class GameContent {
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
 
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 0, 0, (GROUND_Y)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 20, 0, (GROUND_Y+15)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 0, 0, (BOTTOM_Y + 10)));
+
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.table), rootNode, 0, 0, (BOTTOM_Y + 15)));
+
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
+        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 80, 0, (BOTTOM_Y + 30)));
+
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
+        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 0, 0, (BOTTOM_Y + 50)));
+
         SpaceNode playerNode = new SpaceNode();
-        playerNode.localPosition.set(WIDTH * 0.4f, GROUND_Y, 0);
+        playerNode.localPosition.set(WIDTH * 0.4f, 0, GROUND_Y);
         playerNode.addToNode(rootNode);
 
         playerObject = new SpaceObject(playerNode);
@@ -164,9 +180,12 @@ public class GameContent {
                 0));
         playerObject.body.setController(new InputSpaceObjectBodyController(controls, playerObject));
 
+        foregroundObjects.add(playerObject);
+
 
         parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
         tileProjection = new TilingPositionProjection(WIDTH, HEIGHT);
+        isometricProjection = new IsometricPositionProjection();
     }
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
@@ -244,7 +263,14 @@ public class GameContent {
         canvas.clipRect(0, 0, viewWidth - offsetX * 2, viewHeight - offsetY * 2);
         canvas.scale(scaleFactor, scaleFactor);
 
-        this.draw(canvas);
+
+        // Draw on actual lo-res bitmap, for speed and pixels
+        Bitmap buffer = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
+        Canvas bufferCanvas = new Canvas(buffer);
+        this.draw(bufferCanvas);
+        canvas.drawBitmap(buffer, 0, 0, null);
+
+//        this.draw(canvas);
 
         canvas.restoreToCount(savedState);
     }
@@ -260,11 +286,21 @@ public class GameContent {
             spaceObject.draw(canvas, tileProjection);
         }
 
+        // just a test, not needed for background objects
+        // Collections.sort(parallaxObjects, zComparator);
+
         for (SpaceObject spaceObject : parallaxObjects) {
             spaceObject.draw(canvas, parallaxProjection);
         }
 
-        playerObject.draw(canvas, null);
+        Collections.sort(foregroundObjects, zComparator);
+        Collections.reverse(foregroundObjects);
+
+        for (SpaceObject spaceObject : foregroundObjects) {
+            spaceObject.draw(canvas, isometricProjection);
+        }
+
+//        playerObject.draw(canvas, null);
 
         for (WorldObject worldObject : this.objectRepository.getBackgrounds()) {
             worldObject.getSprite().draw(canvas);
@@ -289,38 +325,38 @@ public class GameContent {
         }
     }
 
-    private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+//    private WorldObject createFixedHorizonBackground(Resources resources, int resourceId) {
+//        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+//
+//        Sprite sprite = new Sprite(shape);
+//
+//        return new WorldObject(sprite, 0, 0, null, null);
+//    }
 
-        Sprite sprite = new Sprite(shape);
+//    private WorldObject createRepeatingGroundBackground(Resources resources, int resourceId, int offset) {
+//        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+//
+//        Sprite sprite = new Sprite(shape);
+//
+//        return new WorldObject(sprite, offset * WIDTH, GROUND_Y, CycleScreenPanEffect.INSTANCE, null);
+//    }
 
-        return new WorldObject(sprite, 0, 0, null, null);
-    }
+//    private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {
+//        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
+//        shape.setPivot(new Point(0, shape.getHeight()));
+//
+//        Sprite sprite = new Sprite(shape);
+//
+//        double firstX = ((Math.random() * 0.5 + 0.2) * WIDTH) / factor;
+//
+//        return new WorldObject(sprite, firstX, HORIZON_Y, new ParallaxScreenPanEffect(factor), null);
+//    }
 
-    private WorldObject createRepeatingGroundBackground(Resources resources, int resourceId, int offset) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-
-        Sprite sprite = new Sprite(shape);
-
-        return new WorldObject(sprite, offset * WIDTH, GROUND_Y, CycleScreenPanEffect.INSTANCE, null);
-    }
-
-    private WorldObject createHorizonObject(Resources resources, int resourceId, double factor) {
-        SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-        shape.setPivot(new Point(0, shape.getHeight()));
-
-        Sprite sprite = new Sprite(shape);
-
-        double firstX = ((Math.random() * 0.5 + 0.2) * WIDTH) / factor;
-
-        return new WorldObject(sprite, firstX, HORIZON_Y, new ParallaxScreenPanEffect(factor), null);
-    }
-
-    private WorldObject createFloatingHorizonObject(Resources resources, int resourceId, double factor, double y) {
-        WorldObject object = createHorizonObject(resources, resourceId, factor);
-        object.setY(y);
-        return object;
-    }
+//    private WorldObject createFloatingHorizonObject(Resources resources, int resourceId, double factor, double y) {
+//        WorldObject object = createHorizonObject(resources, resourceId, factor);
+//        object.setY(y);
+//        return object;
+//    }
 
     private WorldObject createGroundObject(Resources resources, int resourceId, int y) {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId);
@@ -345,6 +381,14 @@ public class GameContent {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId);
         shape.setPivot(new Point(0, 0));
 
+        SpaceNode node = new SpaceNode();
+        SpaceObject spaceObject = new SpaceObject(node);
+        spaceObject.shape = shape;
+
+        return spaceObject;
+    }
+
+    private SpaceObject createSpaceObject(SpriteShape shape) {
         SpaceNode node = new SpaceNode();
         SpaceObject spaceObject = new SpaceObject(node);
         spaceObject.shape = shape;

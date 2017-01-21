@@ -66,7 +66,7 @@ public class Sprite {
             canvas.scale(-1, 1, (float)x, (float)y);
         }
 
-        shape.draw(x, y, canvas);
+        //shape.draw(x, y, canvas);
         canvas.drawCircle((float)x, (float)y, 1, paint);
 
         if (flipX) {

@@ -13,9 +13,13 @@ public class SpaceNode {
 
     private SpaceNode parent = null;
     private ArrayList<SpaceNode> subNodes;
+    private Point3F globalPosition;
+    private boolean isGlobalPositionValid;
 
     public SpaceNode() {
         localPosition = new Point3F();
+        globalPosition = localPosition;
+        invalidateGlobalPosition();
     }
 
     public void addSubNode(SpaceNode node) {
@@ -58,15 +62,23 @@ public class SpaceNode {
     }
 
     public Point3F localToGlobal() {
-        Point3F g = new Point3F(localPosition);
+        if (!isGlobalPositionValid) {
+            globalPosition = new Point3F(localPosition);
 
-        SpaceNode ancestor = parent;
+            SpaceNode ancestor = parent;
 
-        while (ancestor != null) {
-            g.offset(ancestor.localPosition);
-            ancestor = ancestor.getParent();
+            while (ancestor != null) {
+                globalPosition.offset(ancestor.localPosition);
+                ancestor = ancestor.getParent();
+            }
+
+            isGlobalPositionValid = true;
         }
 
-        return g;
+        return globalPosition;
+    }
+
+    public void invalidateGlobalPosition(){
+        isGlobalPositionValid = false;
     }
 }

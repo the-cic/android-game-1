@@ -41,6 +41,7 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
         if (drawThread == null) {
             System.out.println("Create main thread");
             drawThread = new DrawThread(getHolder(), this);
+            drawThread.setName("DrawThread");
             drawThread.setRunning(true);
             drawThread.start();
         }

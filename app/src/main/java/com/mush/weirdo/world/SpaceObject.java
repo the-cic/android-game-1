@@ -38,12 +38,13 @@ public class SpaceObject {
     }
 
     public void draw(Canvas canvas, PositionProjection projection) {
-        Point3F position = spaceNode.localToGlobal();
+        Point3F globalPosition = spaceNode.localToGlobal();
+        spaceNode.invalidateGlobalPosition();
         if (projection != null) {
-            projection.transform(position, drawPoint);
+            projection.transform(globalPosition, drawPoint);
         } else {
-            drawPoint.x = position.x;
-            drawPoint.y = position.y;
+            drawPoint.x = globalPosition.x;
+            drawPoint.y = globalPosition.y;
         }
 
         if (shape != null) {
