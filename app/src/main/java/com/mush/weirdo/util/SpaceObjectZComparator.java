@@ -11,6 +11,8 @@ public class SpaceObjectZComparator implements Comparator<SpaceObject> {
 
     @Override
     public int compare(SpaceObject a, SpaceObject b) {
-        return (int)(b.spaceNode.localToGlobal().z - a.spaceNode.localToGlobal().z);
+        float dif = b.spaceNode.localToGlobal().z - a.spaceNode.localToGlobal().z;
+        return dif == 0 ? 0 : (dif > 0 ? 1 : -1);
+//        return (int)dif;
     }
 }

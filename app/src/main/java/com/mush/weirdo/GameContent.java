@@ -10,7 +10,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 
-import com.mush.weirdo.screenpan.CycleScreenPanEffect;
 import com.mush.weirdo.screenpan.FollowScreenPanEffect;
 import com.mush.weirdo.screenpan.ParallaxScreenPanEffect;
 import com.mush.weirdo.screenpan.ScreenPanEffect;
@@ -263,19 +262,22 @@ public class GameContent {
         canvas.clipRect(0, 0, viewWidth - offsetX * 2, viewHeight - offsetY * 2);
         canvas.scale(scaleFactor, scaleFactor);
 
-
         // Draw on actual lo-res bitmap, for speed and pixels
         Bitmap buffer = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas bufferCanvas = new Canvas(buffer);
-        this.draw(bufferCanvas);
-        canvas.drawBitmap(buffer, 0, 0, null);
 
-//        this.draw(canvas);
+        this.drawContent(bufferCanvas);
+
+        applyBuffer(buffer, canvas);
 
         canvas.restoreToCount(savedState);
     }
 
-    private void draw(Canvas canvas) {
+    private void applyBuffer(Bitmap buffer, Canvas canvas){
+        canvas.drawBitmap(buffer, 0, 0, null);
+    }
+
+    private void drawContent(Canvas canvas) {
         rootNode.localPosition.set(-pan.getValue(), 0, 0);
 
         for (SpaceObject spaceObject : fixedBgObjects) {
@@ -286,16 +288,13 @@ public class GameContent {
             spaceObject.draw(canvas, tileProjection);
         }
 
-        // just a test, not needed for background objects
-        // Collections.sort(parallaxObjects, zComparator);
-
         for (SpaceObject spaceObject : parallaxObjects) {
             spaceObject.draw(canvas, parallaxProjection);
         }
 
         Collections.sort(foregroundObjects, zComparator);
         Collections.reverse(foregroundObjects);
-
+        System.out.println("sorted:");
         for (SpaceObject spaceObject : foregroundObjects) {
             spaceObject.draw(canvas, isometricProjection);
         }
