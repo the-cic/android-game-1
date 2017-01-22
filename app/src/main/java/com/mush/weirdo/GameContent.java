@@ -95,10 +95,10 @@ public class GameContent {
 //        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 0));
 //        objectRepository.addBackground(createRepeatingGroundBackground(resources, R.drawable.ground, 1));
 
-        objectRepository.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
-        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
-        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, BOTTOM_Y + 10));
-        //worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
+//        objectRepository.add(createGroundObject(resources, R.drawable.hill_near, GROUND_Y));
+//        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, GROUND_Y));
+//        objectRepository.add(createGroundObject(resources, R.drawable.grass_near, BOTTOM_Y + 10));
+//        //worldObjects.add(createGroundObject(resources, R.drawable.water_near, BOTTOM_Y));
 
         WorldObject table = createGroundObject(resources, R.drawable.table, BOTTOM_Y + 15);
         table.setBounds(0, (int) (-table.getSprite().getHeight() * 0.2), table.getSprite().getWidth(), 0);
@@ -126,7 +126,6 @@ public class GameContent {
         objectRepository.add(player);
 
         pan = new AnimatedValue(0);
-
 
         rootNode = new SpaceNode();
         rootNode.localPosition.set(0, 0, 0);

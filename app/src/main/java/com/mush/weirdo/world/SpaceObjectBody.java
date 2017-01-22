@@ -7,7 +7,7 @@ import android.graphics.Rect;
  */
 public class SpaceObjectBody {
 
-    public final Rect bounds;
+    public final Rect boundsRect;
 
     private Point3F velocity;
     private final SpaceNode node;
@@ -16,7 +16,7 @@ public class SpaceObjectBody {
 
     public SpaceObjectBody(SpaceObject spaceObject, Rect b) {
         this.node = spaceObject.spaceNode;
-        this.bounds = new Rect(b);
+        this.boundsRect = new Rect(b);
         this.velocity = null;
     }
 
