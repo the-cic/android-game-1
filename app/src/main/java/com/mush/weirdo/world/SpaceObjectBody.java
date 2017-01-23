@@ -59,14 +59,44 @@ public class SpaceObjectBody {
         }
     }
 
-    public void applyPositionUpdate(){
+    public SpaceNode getNode() {
+        return node;
+    }
+
+    public Point3F getNextLocalPosition() {
+        return nextLocalPosition;
+    }
+
+    public void applyPositionUpdate() {
+        if (this.nextLocalPosition == null) {
+            return;
+        }
         this.node.localPosition.set(this.nextLocalPosition);
     }
 
     public boolean isMoving() {
-        if(velocity == null){
+        if (velocity == null) {
             return false;
         }
         return !velocity.isZero();
     }
+
+    public void clearNextPosition(){
+        this.nextLocalPosition.set(this.node.localPosition);
+//        this.velocity = null;
+    }
+
+    public boolean willIntersect(SpaceObjectBody other) {
+        if (nextLocalPosition == null) {
+            return false;
+        }
+        Rect nextRealBounds = new Rect(boundsRect);
+        nextRealBounds.offset((int)nextLocalPosition.x, (int)nextLocalPosition.z);
+
+        Rect otherRealBounds = new Rect(other.boundsRect);
+        otherRealBounds.offset((int)other.getNode().localPosition.x, (int)other.getNode().localPosition.z);
+
+        return nextRealBounds.intersects(otherRealBounds.left, otherRealBounds.top, otherRealBounds.right, otherRealBounds.bottom);
+    }
+
 }

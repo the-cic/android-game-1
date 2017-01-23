@@ -5,6 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by mirko on 30/03/2016.
  */
+@Deprecated
 public class WorldObjectRepository {
 
     private ArrayList<WorldObject> objects;

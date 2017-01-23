@@ -12,6 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by mirko on 16/03/2016.
  */
+@Deprecated
 public class WorldObject {
 
     public Sprite sprite;

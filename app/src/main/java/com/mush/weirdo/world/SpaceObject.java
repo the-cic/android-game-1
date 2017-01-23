@@ -61,12 +61,27 @@ public class SpaceObject {
         }
 
         canvas.drawCircle((float) drawPoint.x, (float) drawPoint.y, 1, paint);
+
+        if (body != null) {
+            final int savedState = canvas.save();
+            canvas.translate(drawPoint.x, drawPoint.y);
+            canvas.drawRect(body.boundsRect, paint);
+            canvas.restoreToCount(savedState);
+        }
     }
 
     public void update(double secondsPerFrame) {
+        updateShape(secondsPerFrame);
+        updateBody(secondsPerFrame);
+    }
+
+    public void updateShape(double secondsPerFrame){
         if (shape != null) {
             shape.update(secondsPerFrame);
         }
+    }
+
+    public void updateBody(double secondsPerFrame){
         if (body != null) {
             body.update(secondsPerFrame);
             body.applyPositionUpdate();
