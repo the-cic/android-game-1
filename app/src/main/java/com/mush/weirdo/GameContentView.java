@@ -114,6 +114,10 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
 
     @Override
     public void draw(Canvas canvas) {
+        if (canvas == null) {
+            System.out.println("Canvas is null!");
+            return;
+        }
         super.draw(canvas);
         render(canvas);
     }

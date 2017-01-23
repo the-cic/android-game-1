@@ -92,7 +92,7 @@ public class BitmapFrames {
                 if (x < 0 || x + width > source.getWidth()) {
                     throw new RuntimeException("BitmapFrames source size");
                 }
-                System.out.println("next x " + x);
+//                System.out.println("next x " + x);
                 if (y < 0 || y + height > source.getHeight()) {
                     throw new RuntimeException("BitmapFrames source size");
                 }
