@@ -9,6 +9,8 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.mush.weirdo.world.SpaceObject;
+
 import java.text.MessageFormat;
 
 /**
@@ -77,16 +79,16 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = super.onTouchEvent(event);
 
-        processInput(event);
+        return processInput(event);
 
-        // Follow move events on the right side, and only touch events on the left
-        if (!(event.getX() < getWidth() * 0.1 && event.getY() < getHeight() * 0.1)) {
-            return true;
-        }
-        return b;
+//        // Follow move events on the right side, and only touch events on the left
+//        if (!(event.getX() < getWidth() * 0.1 && event.getY() < getHeight() * 0.1)) {
+//            return true;
+//        }
+//        return b;
     }
 
-    private void processInput(MotionEvent event) {
+    private boolean processInput(MotionEvent event) {
         if (event.getX() < getWidth() * 0.1 && event.getY() < getHeight() * 0.1) {
             if (drawThread != null) {
                 switch (drawThread.FPS) {
@@ -103,9 +105,15 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
                         drawThread.FPS = 30;
                 }
             }
+            return false;
+
+        } else if (event.getX() > getWidth() * 0.9 && event.getY() < getHeight() * 0.1) {
+            SpaceObject.drawMarkers = !SpaceObject.drawMarkers;
+            return false;
         }
 
         gameContent.processInput(event, getWidth(), getHeight());
+        return true;
     }
 
     public void update(double secondsPerFrame) {

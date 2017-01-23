@@ -20,6 +20,7 @@ public class SpaceObject {
     private final PointF drawPoint = new PointF();
     private Paint paint;
     private boolean flipShape = false;
+    public static boolean drawMarkers = true;
 
     public SpaceObject(SpaceNode node) {
         spaceNode = node;
@@ -27,6 +28,7 @@ public class SpaceObject {
         paint = new Paint();
         paint.setColor(Color.GREEN);
         paint.setStyle(Paint.Style.STROKE);
+        paint.setAlpha(50);
     }
 
     public void setupBody(Rect bounds) {
@@ -60,13 +62,15 @@ public class SpaceObject {
             }
         }
 
-        canvas.drawCircle((float) drawPoint.x, (float) drawPoint.y, 1, paint);
+        if (drawMarkers) {
+            canvas.drawCircle((float) drawPoint.x, (float) drawPoint.y, 1, paint);
 
-        if (body != null) {
-            final int savedState = canvas.save();
-            canvas.translate(drawPoint.x, drawPoint.y);
-            canvas.drawRect(body.boundsRect, paint);
-            canvas.restoreToCount(savedState);
+            if (body != null) {
+                final int savedState = canvas.save();
+                canvas.translate(drawPoint.x, drawPoint.y);
+                canvas.drawRect(body.boundsRect, paint);
+                canvas.restoreToCount(savedState);
+            }
         }
     }
 
@@ -75,13 +79,13 @@ public class SpaceObject {
         updateBody(secondsPerFrame);
     }
 
-    public void updateShape(double secondsPerFrame){
+    public void updateShape(double secondsPerFrame) {
         if (shape != null) {
             shape.update(secondsPerFrame);
         }
     }
 
-    public void updateBody(double secondsPerFrame){
+    public void updateBody(double secondsPerFrame) {
         if (body != null) {
             body.update(secondsPerFrame);
             body.applyPositionUpdate();

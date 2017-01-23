@@ -98,20 +98,28 @@ public class GameContent {
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
 
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 0, 0, (GROUND_Y)));
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 20, 0, (GROUND_Y + 15)));
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 0, 0, (BOTTOM_Y + 10)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y-0.01f)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 35, 0, (GROUND_Y + 15)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 10, 0, (BOTTOM_Y + 10)));
 
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.table), rootNode, 0, 0, (BOTTOM_Y + 15)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.table), rootNode, 20, 0, (BOTTOM_Y + 11)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        SpriteShape
-                wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 2);
+        SpriteShape wallShape;
+
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 1);
+        wallShape.getPivot().offset(0, -5);
         foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 80, 0, (BOTTOM_Y + 30)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 5);
-        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 0, 0, (BOTTOM_Y + 50)));
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 4);
+        wallShape.getPivot().offset(0, -5);
+        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 120, 0, (BOTTOM_Y + 50)));
+        setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
+
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 0);
+        wallShape.getPivot().offset(0, -5);
+        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 130, 0, (BOTTOM_Y + 5)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
         SpaceNode playerNode = new SpaceNode();
