@@ -109,6 +109,7 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
 
         } else if (event.getX() > getWidth() * 0.9 && event.getY() < getHeight() * 0.1) {
             SpaceObject.drawMarkers = !SpaceObject.drawMarkers;
+            GameContent.pileUp = !GameContent.pileUp;
             return false;
         }
 
@@ -148,6 +149,10 @@ public class GameContentView extends SurfaceView implements SurfaceHolder.Callba
 
                 canvas.drawText("Fps: " + fps, 10, 20, getFpsPaint());
             }
+
+            getFpsPaint().setColor(Color.YELLOW);
+            canvas.drawText("Piled: " + GameContent.piledUp, getWidth() - 180, 20, getFpsPaint());
+            canvas.drawText("Overflow: " + GameContent.toppleOverflow, getWidth() - 180, 50, getFpsPaint());
         }
     }
 

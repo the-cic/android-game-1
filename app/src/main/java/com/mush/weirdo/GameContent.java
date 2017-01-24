@@ -59,6 +59,13 @@ public class GameContent {
     private Paint paint;
     private Paint paint2;
 
+    private char[] toppleMap;
+    public static boolean pileUp = false;
+    public static int piledUp = 0;
+    public static long toppleOverflow;
+    public static int pileX;
+    public static int pileY;
+
     public GameContent(Resources resources) {
         controls = new GameControls();
         zComparator = new SpaceObjectZComparator();
@@ -83,6 +90,13 @@ public class GameContent {
         foregroundObjects = new ArrayList<>();
         objectBodies = new ArrayList<>();
 
+        toppleMap = new char[WIDTH * HEIGHT];
+        for (int i = 0; i < toppleMap.length; i++) {
+            toppleMap[i] = 0;
+        }
+        pileX = WIDTH / 2;
+        pileY = HEIGHT / 2;
+
         int BASE = HORIZON_Y;
 
         fixedBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.horizon), null, 0, 0, 0));
@@ -98,7 +112,7 @@ public class GameContent {
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
 
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y-0.01f)));
+        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y - 0.01f)));
         foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 35, 0, (GROUND_Y + 15)));
         foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 10, 0, (BOTTOM_Y + 10)));
 
@@ -149,9 +163,43 @@ public class GameContent {
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
         controls.processInput(event, screenWidth, screenHeight);
+        pileX = (int) (WIDTH * (event.getX() / screenWidth));
+        pileY = (int) (HEIGHT * (event.getY() / screenHeight));
+    }
+
+    private int toppleIndex(int x, int y) {
+        return y * WIDTH + x;
+    }
+
+    private long topple() {
+        final char[] prevMap = new char[toppleMap.length];
+        System.arraycopy(toppleMap, 0, prevMap, 0, toppleMap.length);
+
+        long overflow = 0;
+        for (int y = 1; y < HEIGHT - 1; y++) {
+            for (int x = 1; x < WIDTH - 1; x++) {
+                char v = prevMap[toppleIndex(x, y)];
+                if (v >= 4) {
+                    toppleMap[toppleIndex(x, y)] -= 4;
+                    toppleMap[toppleIndex(x - 1, y)] += 1;
+                    toppleMap[toppleIndex(x, y - 1)] += 1;
+                    toppleMap[toppleIndex(x + 1, y)] += 1;
+                    toppleMap[toppleIndex(x, y + 1)] += 1;
+                    overflow += v;
+                }
+            }
+        }
+        return overflow;
     }
 
     public void update(double secondsPerFrame) {
+        if (pileUp) {
+            toppleMap[toppleIndex(pileX, pileY)] += 4;
+            piledUp += 4;
+        }
+
+        this.toppleOverflow = topple();
+
         if (pan.getVelocity() == 0) {
             if (playerObject.spaceNode.localToGlobal().x > WIDTH * 0.75) {
                 pan.transitionTo(pan.getValue() + WIDTH * 0.45, 1);
@@ -227,7 +275,9 @@ public class GameContent {
         Bitmap buffer = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas bufferCanvas = new Canvas(buffer);
 
-        this.drawContent(bufferCanvas);
+//        this.drawContent(bufferCanvas);
+
+        this.drawToppleMap(buffer);
 
         applyBuffer(buffer, canvas);
 
@@ -236,6 +286,34 @@ public class GameContent {
 
     private void applyBuffer(Bitmap buffer, Canvas canvas) {
         canvas.drawBitmap(buffer, 0, 0, null);
+    }
+
+    private void drawToppleMap(Bitmap buffer) {
+        final int BLUE = 0xFF5E99FF;
+        final int GREEN = 0xFF39B54A;
+        final int YELLOW = 0xFFE0DD3C;
+        final int RED = 0xFFCE3723;
+
+        for (int x = 1; x < WIDTH-1; x++) {
+            for (int y = 1; y < HEIGHT-1; y++) {
+                int color = Color.WHITE;
+                switch (toppleMap[toppleIndex(x, y)]) {
+                    case 0:
+                        color = BLUE;
+                        break;
+                    case 1:
+                        color = GREEN;
+                        break;
+                    case 2:
+                        color = YELLOW;
+                        break;
+                    case 3:
+                        color = RED;
+                        break;
+                }
+                buffer.setPixel(x, y, color);
+            }
+        }
     }
 
     private void drawContent(Canvas canvas) {
