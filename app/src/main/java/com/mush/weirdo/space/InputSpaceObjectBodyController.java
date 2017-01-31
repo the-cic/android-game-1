@@ -1,10 +1,6 @@
-package com.mush.weirdo.world;
-
-import android.graphics.PointF;
+package com.mush.weirdo.space;
 
 import com.mush.weirdo.GameControls;
-import com.mush.weirdo.sprites.AnimatedSpriteShape;
-import com.mush.weirdo.sprites.SpriteShape;
 
 /**
  * Created by mirko on 20/01/2017.

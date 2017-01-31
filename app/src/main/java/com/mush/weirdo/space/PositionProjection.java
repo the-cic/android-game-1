@@ -1,6 +1,5 @@
-package com.mush.weirdo.world;
+package com.mush.weirdo.space;
 
-import android.graphics.Point;
 import android.graphics.PointF;
 
 /**

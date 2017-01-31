@@ -1,7 +1,4 @@
-package com.mush.weirdo.world;
-
-import android.graphics.Point;
-import android.graphics.PointF;
+package com.mush.weirdo.space;
 
 import java.util.ArrayList;
 

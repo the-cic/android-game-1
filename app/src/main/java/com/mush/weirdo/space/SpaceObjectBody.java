@@ -1,4 +1,4 @@
-package com.mush.weirdo.world;
+package com.mush.weirdo.space;
 
 import android.graphics.Rect;
 

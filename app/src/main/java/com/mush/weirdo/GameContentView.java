@@ -9,7 +9,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.mush.weirdo.world.SpaceObject;
+import com.mush.weirdo.space.SpaceObject;
 
 import java.text.MessageFormat;
 

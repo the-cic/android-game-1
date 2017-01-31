@@ -1,6 +1,6 @@
-package com.mush.weirdo.util;
+package com.mush.weirdo.space;
 
-import com.mush.weirdo.world.SpaceObject;
+import com.mush.weirdo.space.SpaceObject;
 
 import java.util.Comparator;
 
