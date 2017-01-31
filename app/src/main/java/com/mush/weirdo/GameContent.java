@@ -59,13 +59,6 @@ public class GameContent {
     private Paint paint;
     private Paint paint2;
 
-    private char[] toppleMap;
-    public static boolean pileUp = false;
-    public static int piledUp = 0;
-    public static long toppleOverflow;
-    public static int pileX;
-    public static int pileY;
-
     public GameContent(Resources resources) {
         controls = new GameControls();
         zComparator = new SpaceObjectZComparator();
@@ -89,13 +82,6 @@ public class GameContent {
         tilingBgObjects = new ArrayList<>();
         foregroundObjects = new ArrayList<>();
         objectBodies = new ArrayList<>();
-
-        toppleMap = new char[WIDTH * HEIGHT];
-        for (int i = 0; i < toppleMap.length; i++) {
-            toppleMap[i] = 0;
-        }
-        pileX = WIDTH / 2;
-        pileY = HEIGHT / 2;
 
         int BASE = HORIZON_Y;
 
@@ -121,17 +107,17 @@ public class GameContent {
 
         SpriteShape wallShape;
 
-        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 1);
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_single, 17, 32, 17, 1);
         wallShape.getPivot().offset(0, -5);
         foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 80, 0, (BOTTOM_Y + 30)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 4);
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_single, 17, 32, 17, 1);
         wallShape.getPivot().offset(0, -5);
         foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 120, 0, (BOTTOM_Y + 50)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_left, R.drawable.wall_middle, R.drawable.wall_right, 0);
+        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_single, 17, 32, 17, 1);
         wallShape.getPivot().offset(0, -5);
         foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 130, 0, (BOTTOM_Y + 5)));
         setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
@@ -163,53 +149,20 @@ public class GameContent {
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
         controls.processInput(event, screenWidth, screenHeight);
-        pileX = (int) (WIDTH * (event.getX() / screenWidth));
-        pileY = (int) (HEIGHT * (event.getY() / screenHeight));
-    }
-
-    private int toppleIndex(int x, int y) {
-        return y * WIDTH + x;
-    }
-
-    private long topple() {
-        final char[] prevMap = new char[toppleMap.length];
-        System.arraycopy(toppleMap, 0, prevMap, 0, toppleMap.length);
-
-        long overflow = 0;
-        for (int y = 1; y < HEIGHT - 1; y++) {
-            for (int x = 1; x < WIDTH - 1; x++) {
-                char v = prevMap[toppleIndex(x, y)];
-                if (v >= 4) {
-                    toppleMap[toppleIndex(x, y)] -= 4;
-                    toppleMap[toppleIndex(x - 1, y)] += 1;
-                    toppleMap[toppleIndex(x, y - 1)] += 1;
-                    toppleMap[toppleIndex(x + 1, y)] += 1;
-                    toppleMap[toppleIndex(x, y + 1)] += 1;
-                    overflow += v;
-                }
-            }
-        }
-        return overflow;
     }
 
     public void update(double secondsPerFrame) {
-        if (pileUp) {
-            toppleMap[toppleIndex(pileX, pileY)] += 4;
-            piledUp += 4;
-        }
-
-        this.toppleOverflow = topple();
 
         if (pan.getVelocity() == 0) {
             if (playerObject.spaceNode.localToGlobal().x > WIDTH * 0.75) {
-                pan.transitionTo(pan.getValue() + WIDTH * 0.45, 1);
+                pan.transitionTo(pan.getValue() + WIDTH * 0.45, 0.5);
             }
             if (playerObject.spaceNode.localToGlobal().x < WIDTH * 0.25) {
                 double panTo = pan.getValue() - WIDTH * 0.45;
                 if (panTo < 0) {
                     panTo = 0;
                 }
-                pan.transitionTo(panTo, 3);
+                pan.transitionTo(panTo, 1);
             }
         }
         pan.update(secondsPerFrame);
@@ -275,9 +228,7 @@ public class GameContent {
         Bitmap buffer = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
         Canvas bufferCanvas = new Canvas(buffer);
 
-//        this.drawContent(bufferCanvas);
-
-        this.drawToppleMap(buffer);
+        this.drawContent(bufferCanvas);
 
         applyBuffer(buffer, canvas);
 
@@ -286,34 +237,6 @@ public class GameContent {
 
     private void applyBuffer(Bitmap buffer, Canvas canvas) {
         canvas.drawBitmap(buffer, 0, 0, null);
-    }
-
-    private void drawToppleMap(Bitmap buffer) {
-        final int BLUE = 0xFF5E99FF;
-        final int GREEN = 0xFF39B54A;
-        final int YELLOW = 0xFFE0DD3C;
-        final int RED = 0xFFCE3723;
-
-        for (int x = 1; x < WIDTH-1; x++) {
-            for (int y = 1; y < HEIGHT-1; y++) {
-                int color = Color.WHITE;
-                switch (toppleMap[toppleIndex(x, y)]) {
-                    case 0:
-                        color = BLUE;
-                        break;
-                    case 1:
-                        color = GREEN;
-                        break;
-                    case 2:
-                        color = YELLOW;
-                        break;
-                    case 3:
-                        color = RED;
-                        break;
-                }
-                buffer.setPixel(x, y, color);
-            }
-        }
     }
 
     private void drawContent(Canvas canvas) {
@@ -385,7 +308,6 @@ public class GameContent {
                 (int) (spaceObject.shape.getHeight() * ft),
                 (int) (spaceObject.shape.getWidth() * fr),
                 (int) (spaceObject.shape.getHeight() * fb)));
-
     }
 
 }

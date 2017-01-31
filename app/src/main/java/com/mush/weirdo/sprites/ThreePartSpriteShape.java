@@ -29,6 +29,17 @@ public class ThreePartSpriteShape implements SpriteShape {
         this.pivot = new Point(0, this.getHeight());
     }
 
+    public ThreePartSpriteShape(Resources resources, int resource, int widthLeft, int widthMid, int widthRight, int segments) {
+        Bitmap source = BitmapFactory.decodeResource(resources, resource);
+        this.width = widthLeft + widthRight + segments * widthMid;
+        this.height = source.getHeight();
+        this.segments = segments;
+        this.imageLeft = Bitmap.createBitmap(source, 0, 0, widthLeft, height);
+        this.imageMid = Bitmap.createBitmap(source, widthLeft, 0, widthMid, height);
+        this.imageRight = Bitmap.createBitmap(source, widthLeft + widthMid, 0, widthRight, height);
+        this.pivot = new Point(0, this.getHeight());
+    }
+
     @Override
     public void update(double secondsPerFrame) {}
 
