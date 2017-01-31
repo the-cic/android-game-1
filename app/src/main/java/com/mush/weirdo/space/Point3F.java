@@ -62,6 +62,11 @@ public class Point3F implements Parcelable {
         z += p.z;
     }
 
+    public final void scale(float s) {
+        x *= s;
+        y *= s;
+        z *= s;
+    }
     /**
      * Returns true if the point's coordinates equal (x,y)
      */

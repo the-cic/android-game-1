@@ -11,7 +11,8 @@ public class SpaceObjectBody {
 
     private Point3F velocity;
     private final SpaceNode node;
-    private Point3F nextLocalPosition;
+    private Point3F nextGlobalPosition;
+    private Point3F velocityOffset;
     private InputSpaceObjectBodyController controller;
 
     public SpaceObjectBody(SpaceObject spaceObject, Rect b) {
@@ -27,7 +28,8 @@ public class SpaceObjectBody {
     public void setVelocity(Point3F v) {
         if (velocity == null) {
             velocity = new Point3F(v);
-            nextLocalPosition = new Point3F();
+            velocityOffset = new Point3F();
+            nextGlobalPosition = new Point3F();
         } else {
             velocity.set(v);
         }
@@ -36,22 +38,23 @@ public class SpaceObjectBody {
     public Point3F getVelocity() {
         if (velocity == null) {
             velocity = new Point3F();
-            nextLocalPosition = new Point3F();
+            velocityOffset = new Point3F();
+            nextGlobalPosition = new Point3F();
         }
         return velocity;
     }
 
+    // step 1
     public void update(double secondsPerFrame) {
         if (this.controller != null) {
             this.controller.update(secondsPerFrame);
         }
         if (this.velocity != null) {
-            this.nextLocalPosition.set(this.node.localPosition);
-            this.nextLocalPosition.offset(
-                    (float) (this.velocity.x * secondsPerFrame),
-                    (float) (this.velocity.y * secondsPerFrame),
-                    (float) (this.velocity.z * secondsPerFrame)
-            );
+            this.velocityOffset.set(this.velocity);
+            this.velocityOffset.scale((float) secondsPerFrame);
+
+            this.nextGlobalPosition.set(this.node.localToGlobal());
+            this.nextGlobalPosition.offset(this.velocityOffset);
 
 //            if (this.objectRepository != null) {
 //                checkCollisions(this.objectRepository.getObstacles());
@@ -63,15 +66,16 @@ public class SpaceObjectBody {
         return node;
     }
 
-    public Point3F getNextLocalPosition() {
-        return nextLocalPosition;
+    public Point3F getNextGlobalPosition() {
+        return nextGlobalPosition;
     }
 
+    // step 3
     public void applyPositionUpdate() {
-        if (this.nextLocalPosition == null) {
+        if (this.velocityOffset == null) {
             return;
         }
-        this.node.localPosition.set(this.nextLocalPosition);
+        this.node.localPosition.offset(this.velocityOffset);
     }
 
     public boolean isMoving() {
@@ -82,21 +86,29 @@ public class SpaceObjectBody {
     }
 
     public void clearNextPosition(){
-        this.nextLocalPosition.set(this.node.localPosition);
-//        this.velocity = null;
+        this.velocityOffset.set(0, 0, 0);
     }
 
+    //  step 2
     public boolean willIntersect(SpaceObjectBody other) {
-        if (nextLocalPosition == null) {
+        if (!isMoving()) {
             return false;
         }
-        Rect nextRealBounds = new Rect(boundsRect);
-        nextRealBounds.offset((int)nextLocalPosition.x, (int)nextLocalPosition.z);
 
-        Rect otherRealBounds = new Rect(other.boundsRect);
-        otherRealBounds.offset((int)other.getNode().localPosition.x, (int)other.getNode().localPosition.z);
+        Rect nextGlobalBounds = new Rect(boundsRect);
+        nextGlobalBounds.offset((int) nextGlobalPosition.x, (int) nextGlobalPosition.z);
 
-        return nextRealBounds.intersects(otherRealBounds.left, otherRealBounds.top, otherRealBounds.right, otherRealBounds.bottom);
+        Rect otherGlobalBounds = new Rect(other.boundsRect);
+
+        if (other.isMoving()) {
+            Point3F otherNextGlobalPosition = other.getNextGlobalPosition();
+            otherGlobalBounds.offset((int) otherNextGlobalPosition.x, (int) otherNextGlobalPosition.z);
+        } else {
+            Point3F otherGlobalPosition = other.getNode().localToGlobal();
+            otherGlobalBounds.offset((int) otherGlobalPosition.x, (int) otherGlobalPosition.z);
+        }
+
+        return nextGlobalBounds.intersects(otherGlobalBounds.left, otherGlobalBounds.top, otherGlobalBounds.right, otherGlobalBounds.bottom);
     }
 
 }
