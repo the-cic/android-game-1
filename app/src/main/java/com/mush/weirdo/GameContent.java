@@ -37,7 +37,10 @@ public class GameContent {
 
     private static final int HORIZON_Y = 40;
     private static final int GROUND_Y = HORIZON_Y + 3;
-    private static final int BOTTOM_Y = 50;
+//    private static final int BOTTOM_Y = 50;
+
+    private static final int MAP_TOP_Z = 0;
+    private static final int MAP_BOTTOM_Z = 55;
 
     private GameControls controls;
 
@@ -60,6 +63,7 @@ public class GameContent {
     private SpaceObjectZComparator zComparator;
 
     private MapProvider mapProvider;
+    private MapController mapController;
 
     private AnimatedValue pan;
 
@@ -107,14 +111,14 @@ public class GameContent {
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
 
-        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y - 0.01f)));
+//        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y - 0.01f)));
 //        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 35, 0, (GROUND_Y + 15)));
 //        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.grass_near), rootNode, 10, 0, (BOTTOM_Y + 10)));
 
 //        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.table), rootNode, 20, 0, (BOTTOM_Y + 11)));
 //        setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        SpriteShape wallShape;
+//        SpriteShape wallShape;
 
 //        wallShape = new ThreePartSpriteShape(resources, R.drawable.wall_single, 17, 32, 17, 1);
 //        wallShape.getPivot().offset(0, -5);
@@ -131,22 +135,13 @@ public class GameContent {
 //        foregroundObjects.add(createSpaceObject(createSpaceObject(wallShape), rootNode, 130, 0, (BOTTOM_Y + 5)));
 //        setupSpaceObjectBody(foregroundObjects.get(foregroundObjects.size() - 1), 0, -0.2f, 1, 0);
 
-        for (int chunkIndex = 0; chunkIndex < 3; chunkIndex++) {
-            ArrayList<SpaceObject> chunk = mapProvider.getChunk(chunkIndex);
-            SpaceNode chunkNode = new SpaceNode();
-            chunkNode.localPosition.offset(chunkIndex * mapProvider.chunkLength * mapProvider.objectWidth, 0, 0);
-
-            for (SpaceObject object : chunk) {
-                object.spaceNode.localPosition.offset(0, 0, GROUND_Y);
-                object.spaceNode.addToNode(chunkNode);
-                foregroundObjects.add(object);
-            }
-
-            chunkNode.addToNode(rootNode);
-        }
+        SpaceNode mapNode = new SpaceNode();
+        mapNode.addToNode(rootNode);
+        mapController = new MapController(mapNode, foregroundObjects, mapProvider);
 
         SpaceNode playerNode = new SpaceNode();
-        playerNode.localPosition.set(WIDTH * 0.4f, 0, GROUND_Y);
+//        playerNode.localPosition.set(WIDTH * 0.4f, 0, GROUND_Y);
+        playerNode.localPosition.set(WIDTH * 0.4f, 0, 0);
         playerNode.addToNode(rootNode);
 
         playerObject = new SpaceObject(playerNode);
@@ -159,15 +154,20 @@ public class GameContent {
 
         foregroundObjects.add(playerObject);
 
+        collectBodies();
+
+        parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
+        tileProjection = new TilingPositionProjection(WIDTH, HEIGHT);
+        isometricProjection = new IsometricPositionProjection();
+    }
+
+    private void collectBodies(){
+        objectBodies.clear();
         for (SpaceObject spaceObject : foregroundObjects) {
             if (spaceObject.body != null) {
                 objectBodies.add(spaceObject.body);
             }
         }
-
-        parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
-        tileProjection = new TilingPositionProjection(WIDTH, HEIGHT);
-        isometricProjection = new IsometricPositionProjection();
     }
 
     public void processInput(MotionEvent event, int screenWidth, int screenHeight) {
@@ -190,6 +190,19 @@ public class GameContent {
         }
         pan.update(secondsPerFrame);
 
+        int chunkW = mapProvider.chunkLength * mapProvider.objectWidth;
+        int chunkP = (int) (playerObject.spaceNode.localPosition.x / chunkW) - 1;
+
+        if (chunkP > mapController.getCurrentChunkIndex()) {
+            System.out.println(chunkP + " " + mapController.getCurrentChunkIndex());
+            mapController.advanceChunk(+1);
+            collectBodies();
+        } else if (chunkP < mapController.getCurrentChunkIndex()) {
+            System.out.println(chunkP + " " + mapController.getCurrentChunkIndex());
+            mapController.advanceChunk(-1);
+            collectBodies();
+        }
+
         // ok for now, but should be in an array of somethings
         playerObject.updateShape(secondsPerFrame);
 
@@ -202,11 +215,14 @@ public class GameContent {
         for (SpaceObjectBody body : objectBodies) {
             body.applyPositionUpdate();
             // use global position?
-            if (body.getNode().localPosition.z < GROUND_Y) {
-                body.getNode().localPosition.z = GROUND_Y;
+            if (body.getNode().localPosition.z < MAP_TOP_Z) {
+                body.getNode().localPosition.z = MAP_TOP_Z;
             }
-            if (body.getNode().localPosition.z > BOTTOM_Y * 2) {
-                body.getNode().localPosition.z = BOTTOM_Y * 2;
+            if (body.getNode().localPosition.z > MAP_BOTTOM_Z) {
+                body.getNode().localPosition.z = MAP_BOTTOM_Z;
+            }
+            if (body.getNode().localPosition.x < 0) {
+                body.getNode().localPosition.x = 0;
             }
         }
     }
@@ -264,7 +280,7 @@ public class GameContent {
     }
 
     private void drawContent(Canvas canvas) {
-        rootNode.localPosition.set(-pan.getValue(), 0, 0);
+        rootNode.localPosition.set(-pan.getValue(), 0, GROUND_Y);
 
         for (SpaceObject spaceObject : fixedBgObjects) {
             spaceObject.draw(canvas, null);

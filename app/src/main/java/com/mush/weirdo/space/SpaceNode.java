@@ -19,6 +19,10 @@ public class SpaceNode {
         invalidateGlobalPosition();
     }
 
+    public ArrayList<SpaceNode> getSubnodes() {
+        return subNodes;
+    }
+
     public void addSubNode(SpaceNode node) {
         if (subNodes == null) {
             subNodes = new ArrayList<>();
@@ -37,6 +41,16 @@ public class SpaceNode {
             subNodes.remove(node);
             node.setParent(null);
         }
+    }
+
+    public void removeAllSubnodes(){
+        if (subNodes == null) {
+            return;
+        }
+        for (SpaceNode node : subNodes) {
+            node.setParent(null);
+        }
+        subNodes.clear();
     }
 
     protected void setParent(SpaceNode node) {

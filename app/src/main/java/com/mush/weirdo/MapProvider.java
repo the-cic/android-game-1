@@ -19,22 +19,22 @@ import java.util.ArrayList;
 public class MapProvider {
 
     private Resources resources;
-    public final int chunkLength = 10;
+    public final int chunkLength = 3;
     public final int objectWidth = 18;
     public final int objectHeight = 5;
 
     // 20 x 10
     String [] map = new String[]{
-            "T.........T.......T.",
-            "................T...",
-            ".......T....T.......",
-            "..T.................",
+            "T..,....;.T.......T.",
+            ".;...,;......,,.T...",
+            "....;..T....T....,..",
+            "..T...........,,....",
             ".....BBBBBBBB....T..",
-            ".T...B......B.......",
-            ".....B......B.......",
-            "..B..B......B.......",
-            ".B...BBB.BBBB...T...",
-            "...T................"
+            ".T...B......B.,....,",
+            "...;.B......B..,;,..",
+            "..B..B......B..,.;;.",
+            ".B..,BBB.BBBB.,.T..;",
+            ".,.T.,,..,;..,,....."
     };
 
     public MapProvider(Resources resources1){
@@ -76,7 +76,7 @@ public class MapProvider {
                 char c = mapLine.charAt(i);
                 SpaceObject object = getMapObject(c);
                 if (object != null) {
-                    object.spaceNode.localPosition.set(i * objectWidth, 0, j * objectHeight);
+                    object.spaceNode.localPosition.offset(i * objectWidth, 0, j * objectHeight);
                     objects.add(object);
                 }
             }
@@ -88,20 +88,29 @@ public class MapProvider {
         SpaceObject object = null;
         switch (c) {
             case 'T' :
-                object = getMapObject(R.drawable.tree_stump);
-                setupObjectBody(object, 0, -0.2f, 1, 0);
+                object = getMapObject(R.drawable.tree_fir, 0, 1);
+                setupObjectBody(object, 0.2f, -0.1f, 0.7f, 0);
+                object.spaceNode.localPosition.offset(3, 0, 0);
                 break;
             case 'B' :
-                object = getMapObject(R.drawable.block);
+                object = getMapObject(R.drawable.block, 0, 1);
                 setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case ';' :
+                object = getMapObject(R.drawable.grass_yellow, 0, 1f);
+                object.spaceNode.localPosition.offset(0, 0, -2);
+                break;
+            case ',' :
+                object = getMapObject(R.drawable.grass_green, 0, 1f);
+                object.spaceNode.localPosition.offset(0, 0, -2);
                 break;
         }
         return object;
     }
 
-    public SpaceObject getMapObject(int resourceId) {
+    public SpaceObject getMapObject(int resourceId, float fx, float fy) {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-        shape.setPivot(new Point(0, shape.getHeight()));
+        shape.setPivot(new Point((int)(shape.getWidth() * fx), (int)(shape.getHeight() * fy)));
 
         SpaceNode node = new SpaceNode();
         SpaceObject object = new SpaceObject(node);
