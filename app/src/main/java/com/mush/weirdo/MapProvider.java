@@ -93,16 +93,16 @@ public class MapProvider {
                 object.spaceNode.localPosition.offset(3, 0, 0);
                 break;
             case 'B' :
-                object = getMapObject(R.drawable.block, 0, 1);
+                object = getMapObject(R.drawable.block_2, 0, 1);
                 setupObjectBody(object, 0, -0.2f, 1, 0);
                 break;
             case ';' :
                 object = getMapObject(R.drawable.grass_yellow, 0, 1f);
-                object.spaceNode.localPosition.offset(0, 0, -2);
+                object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
             case ',' :
                 object = getMapObject(R.drawable.grass_green, 0, 1f);
-                object.spaceNode.localPosition.offset(0, 0, -2);
+                object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
         }
         return object;

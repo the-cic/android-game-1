@@ -105,10 +105,10 @@ public class GameContent {
 
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_far), rootNode, 180 * 2, BASE, 40));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_far), rootNode, 180 * 1, BASE, 32));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_near), rootNode, 180 * 3, BASE, 28));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_near), rootNode, 180 * 6, BASE, 30));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 2.5f, BASE - 90, 22));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 1, BASE - 90, 18));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.5f, BASE, 13));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 1, BASE - 90, 20));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.8f, BASE, 15));
         parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
 
 //        foregroundObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.hill_near), rootNode, 40, 0, (GROUND_Y - 0.01f)));
@@ -149,7 +149,7 @@ public class GameContent {
         playerObject.shape = new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4});
         playerObject.shape.setPivot(new Point(playerObject.shape.getWidth() / 2, playerObject.shape.getHeight()));
 
-        setupSpaceObjectBody(playerObject, -0.2f, -0.1f, 0.2f, 0);
+        setupSpaceObjectBody(playerObject, -0.18f, -0.1f, 0.18f, 0);
         playerObject.body.setController(new InputSpaceObjectBodyController(controls, playerObject));
 
         foregroundObjects.add(playerObject);
@@ -280,7 +280,7 @@ public class GameContent {
     }
 
     private void drawContent(Canvas canvas) {
-        rootNode.localPosition.set(-pan.getValue(), 0, GROUND_Y);
+        rootNode.localPosition.set(-pan.getValue(), 0, 0);
 
         for (SpaceObject spaceObject : fixedBgObjects) {
             spaceObject.draw(canvas, null);
@@ -296,6 +296,8 @@ public class GameContent {
 
         Collections.sort(foregroundObjects, zComparator);
         Collections.reverse(foregroundObjects);
+
+        canvas.translate(0, GROUND_Y);
 
         for (SpaceObject spaceObject : foregroundObjects) {
             spaceObject.draw(canvas, isometricProjection);
