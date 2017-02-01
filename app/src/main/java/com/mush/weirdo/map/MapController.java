@@ -1,8 +1,7 @@
-package com.mush.weirdo;
+package com.mush.weirdo.map;
 
 import com.mush.weirdo.space.SpaceNode;
 import com.mush.weirdo.space.SpaceObject;
-import com.mush.weirdo.space.SpaceObjectBody;
 
 import java.util.ArrayList;
 
@@ -10,6 +9,8 @@ import java.util.ArrayList;
  * Created by Cic on 31.1.2017.
  */
 public class MapController {
+
+    private final static int CHUNK_COUNT = 3;
 
     private SpaceNode rootNode;
     // Foreground objects
@@ -24,8 +25,8 @@ public class MapController {
         this.mapProvider = mapProvider1;
         this.rootNode = rootNode1;
         this.objects = objects1;
-        this.chunkNodes = new SpaceNode[3];
-        this.chunkObjects = new ArrayList[3];
+        this.chunkNodes = new SpaceNode[CHUNK_COUNT];
+        this.chunkObjects = new ArrayList[CHUNK_COUNT];
         setChunk(0);
     }
 
@@ -37,8 +38,6 @@ public class MapController {
     }
 
     private void addChunk(int chunkIndex, int chunkOrder) {
-        int GROUND_Y = 43; // fix this
-
         SpaceNode chunkNode = getNodeForChunk(chunkIndex);
         chunkNodes[chunkOrder] = chunkNode;
 
@@ -46,7 +45,6 @@ public class MapController {
         chunkObjects[chunkOrder] = aChunkObjects;
 
         for (SpaceObject object : aChunkObjects) {
-//            object.spaceNode.localPosition.offset(0, 0, GROUND_Y);
             object.spaceNode.addToNode(chunkNode);
             objects.add(object);
         }

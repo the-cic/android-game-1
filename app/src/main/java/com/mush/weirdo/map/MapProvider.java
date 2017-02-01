@@ -1,10 +1,11 @@
-package com.mush.weirdo;
+package com.mush.weirdo.map;
 
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.widget.Space;
 
+import com.mush.weirdo.R;
 import com.mush.weirdo.space.SpaceNode;
 import com.mush.weirdo.space.SpaceObject;
 import com.mush.weirdo.sprites.ImageSpriteShape;
@@ -121,7 +122,7 @@ public class MapProvider {
         return object;
     }
 
-    private void setupObjectBody(SpaceObject object, float fl, float ft, float fr, float fb) {
+    public void setupObjectBody(SpaceObject object, float fl, float ft, float fr, float fb) {
         object.setupBody(new Rect(
                 (int) (object.shape.getWidth() * fl),
                 (int) (object.shape.getHeight() * ft),
