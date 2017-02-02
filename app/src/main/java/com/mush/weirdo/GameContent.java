@@ -110,34 +110,34 @@ public class GameContent {
     public void update(double secondsPerFrame) {
 
         if (pan.getVelocity() == 0) {
+
             if (playerObject.spaceNode.localToGlobal().x > WIDTH * 0.75) {
-                pan.transitionTo(pan.getValue() + WIDTH * 0.45, 0.5);
+                double panTo = pan.getValue() + WIDTH * 0.5;
+                pan.transitionTo(panTo, 0.5);
+
+                int chunkW = mapProvider.chunkWidth * mapProvider.objectWidth;
+                int panIndex = (int) panTo / chunkW;
+                if (panIndex - 1 > mapController.getCurrentChunkIndex()) {
+                    mapController.advanceChunk(+1);
+                    objectBodySpace.collectBodies();
+                }
             }
             if (playerObject.spaceNode.localToGlobal().x < WIDTH * 0.25) {
-                double panTo = pan.getValue() - WIDTH * 0.45;
-                if (panTo < 0) {
-                    panTo = 0;
+                double panTo = pan.getValue() - WIDTH * 0.5;
+                if (panTo >= 0) {
+                    pan.transitionTo(panTo, 0.5);
+
+                    int chunkW = mapProvider.chunkWidth * mapProvider.objectWidth;
+                    int panIndex = (int) panTo / chunkW;
+                    if (panIndex < mapController.getCurrentChunkIndex()) {
+                        mapController.advanceChunk(-1);
+                        objectBodySpace.collectBodies();
+                    }
                 }
-                pan.transitionTo(panTo, 0.5);
             }
         }
+
         pan.update(secondsPerFrame);
-
-        int chunkW = mapProvider.chunkLength * mapProvider.objectWidth;
-        int chunkP = (int) (playerObject.spaceNode.localPosition.x / chunkW) - 1;
-
-        if (chunkP > mapController.getCurrentChunkIndex()) {
-            System.out.println(chunkP + " " + mapController.getCurrentChunkIndex());
-            mapController.advanceChunk(+1);
-            objectBodySpace.collectBodies();
-        } else if (chunkP < mapController.getCurrentChunkIndex()) {
-            System.out.println(chunkP + " " + mapController.getCurrentChunkIndex());
-            mapController.advanceChunk(-1);
-            objectBodySpace.collectBodies();
-        }
-
-        // ok for now, but should be in an array of somethings
-//        playerObject.updateShape(secondsPerFrame);
 
         objectBodySpace.update(secondsPerFrame);
     }

@@ -17,7 +17,8 @@ import java.util.ArrayList;
  */
 public class MapProvider {
 
-    public final int chunkLength = 3;
+    public final int chunkWidth = 5;
+    public final int chunkHeight = 10;
     public final int objectWidth = 18;
     public final int objectHeight = 5;
 
@@ -27,10 +28,29 @@ public class MapProvider {
     public MapProvider(Resources resources1) {
         this.resources = resources1;
         this.contentProvider = new HardcodedMapContentProvider();
+//        this.contentProvider = new ProceduralMapContentProvider();
+
+        // Test map
+        String[] lines = null;
+        for (int i = 0; i < 10; i++) {
+            String[] chunkLines = contentProvider.getMapChunk(i, chunkWidth, chunkHeight);
+            if (lines == null) {
+                lines = chunkLines;
+            } else {
+                for (int j = 0; j < lines.length; j++) {
+                    lines[j] += chunkLines[j];
+                }
+            }
+        }
+
+        System.out.println("Map:");
+        for (int j = 0; j < lines.length; j++) {
+            System.out.println(lines[j]);
+        }
     }
 
     public ArrayList<SpaceObject> getChunk(int index) {
-        String[] mapChunk = contentProvider.getMapChunk(index, chunkLength);
+        String[] mapChunk = contentProvider.getMapChunk(index, chunkWidth, chunkHeight);
         ArrayList<SpaceObject> objects = new ArrayList<>();
         for (int j = 0; j < mapChunk.length; j++) {
             String mapLine = mapChunk[j];

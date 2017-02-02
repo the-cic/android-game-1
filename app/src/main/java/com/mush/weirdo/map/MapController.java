@@ -62,7 +62,7 @@ public class MapController {
 
     private SpaceNode getNodeForChunk(int chunk) {
         SpaceNode chunkNode = new SpaceNode();
-        chunkNode.localPosition.offset(chunk * mapProvider.chunkLength * mapProvider.objectWidth, 0, 0);
+        chunkNode.localPosition.offset(chunk * mapProvider.chunkWidth * mapProvider.objectWidth, 0, 0);
         chunkNode.addToNode(rootNode);
         return chunkNode;
     }

@@ -5,5 +5,5 @@ package com.mush.weirdo.map;
  */
 public interface MapContentProvider {
 
-    public String[] getMapChunk(int index, int chunkLength);
+    public String[] getMapChunk(int index, int chunkWidth, int chunkHeight);
 }

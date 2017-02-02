@@ -19,9 +19,9 @@ public class HardcodedMapContentProvider implements MapContentProvider {
             ".,.T.,,..,;..,,....."
     };
 
-    private String getLineChunk(String line, int index, int chunkLength) {
-        int start = index * chunkLength;
-        int end = start + chunkLength;
+    private String getLineChunk(String line, int index, int chunkWidth) {
+        int start = index * chunkWidth;
+        int end = start + chunkWidth;
         if (start < 0) {
             if (end < 0) {
                 return "";
@@ -37,10 +37,11 @@ public class HardcodedMapContentProvider implements MapContentProvider {
         return line.substring(start, end);
     }
 
-    public String[] getMapChunk(int index, int chunkLength) {
+    @Override
+    public String[] getMapChunk(int index, int chunkWidth, int chunkHeight) {
         String[] chunk = new String[map.length];
         for (int i = 0; i < map.length; i++) {
-            chunk[i] = getLineChunk(map[i], index, chunkLength);
+            chunk[i] = getLineChunk(map[i], index, chunkWidth);
         }
         return chunk;
     }
