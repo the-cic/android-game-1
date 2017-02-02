@@ -113,7 +113,7 @@ public class GameContent {
 
             if (playerObject.spaceNode.localToGlobal().x > WIDTH * 0.75) {
                 double panTo = pan.getValue() + WIDTH * 0.5;
-                pan.transitionTo(panTo, 0.5);
+                pan.transitionTo(panTo, 0.25);
 
                 int chunkW = mapProvider.chunkWidth * mapProvider.objectWidth;
                 int panIndex = (int) panTo / chunkW;
@@ -125,7 +125,7 @@ public class GameContent {
             if (playerObject.spaceNode.localToGlobal().x < WIDTH * 0.25) {
                 double panTo = pan.getValue() - WIDTH * 0.5;
                 if (panTo >= 0) {
-                    pan.transitionTo(panTo, 0.5);
+                    pan.transitionTo(panTo, 0.25);
 
                     int chunkW = mapProvider.chunkWidth * mapProvider.objectWidth;
                     int panIndex = (int) panTo / chunkW;

@@ -22,6 +22,12 @@ public class ImageSpriteShape implements SpriteShape {
         this.height = image.getHeight();
     }
 
+    public ImageSpriteShape(Bitmap bitmap) {
+        this.image = bitmap;
+        this.width = image.getWidth();
+        this.height = image.getHeight();
+    }
+
     @Override
     public void update(double secondsPerFrame) {}
 

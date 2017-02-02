@@ -1,6 +1,8 @@
 package com.mush.weirdo.map;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
 
@@ -9,6 +11,7 @@ import com.mush.weirdo.space.SpaceNode;
 import com.mush.weirdo.space.SpaceObject;
 import com.mush.weirdo.sprites.ImageSpriteShape;
 import com.mush.weirdo.sprites.SpriteShape;
+import com.mush.weirdo.util.BitmapFrames;
 
 import java.util.ArrayList;
 
@@ -24,15 +27,29 @@ public class MapProvider {
 
     private Resources resources;
     private MapContentProvider contentProvider;
+    private SpriteShape[] wallBits;
 
     public MapProvider(Resources resources1) {
         this.resources = resources1;
-        this.contentProvider = new HardcodedMapContentProvider();
-//        this.contentProvider = new ProceduralMapContentProvider();
+//        this.contentProvider = new HardcodedMapContentProvider();
+        this.contentProvider = new ProceduralMapContentProvider();
+
+        Bitmap wallsJelly = BitmapFactory.decodeResource(resources, R.drawable.walls);
+        BitmapFrames frames = new BitmapFrames(wallsJelly, 18, 20, 9);
+        wallBits = new SpriteShape[9];
+        for (int i = 0; i < 9; i++) {
+            SpriteShape shape = new ImageSpriteShape(frames.getFrame(i));
+            if (i >= 3 && i <= 5) {
+                shape.setPivot(new Point(0, shape.getHeight() - 4));
+            } else {
+                shape.setPivot(new Point(0, shape.getHeight()));
+            }
+            wallBits[i] = shape;
+        }
 
         // Test map
         String[] lines = null;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 40; i++) {
             String[] chunkLines = contentProvider.getMapChunk(i, chunkWidth, chunkHeight);
             if (lines == null) {
                 lines = chunkLines;
@@ -78,6 +95,45 @@ public class MapProvider {
                 object = getMapObject(R.drawable.block_2, 0, 1);
                 setupObjectBody(object, 0, -0.2f, 1, 0);
                 break;
+            case 'W'+0:
+                object = getMapObject(wallBits[0]);
+                setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case 'W'+1:
+                object = getMapObject(wallBits[1]);
+                setupObjectBody(object, 0, -0.2f, 1, -0.17f);
+                break;
+            case 'W'+2:
+                object = getMapObject(wallBits[2]);
+                setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case 'W'+3:
+                object = getMapObject(wallBits[3]);
+                object.spaceNode.localPosition.set(0, 0, -4);
+                setupObjectBody(object, 0, -0.2f, 0.4f, 0.17f);
+                break;
+            case 'W'+4:
+                object = getMapObject(wallBits[4]);
+                object.spaceNode.localPosition.set(0, 0, -4);
+                //setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case 'W'+5:
+                object = getMapObject(wallBits[5]);
+                object.spaceNode.localPosition.set(0, 0, -4);
+                setupObjectBody(object, 0.6f, -0.2f, 1, 0.17f);
+                break;
+            case 'W'+6:
+                object = getMapObject(wallBits[6]);
+                setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case 'W'+7:
+                object = getMapObject(wallBits[7]);
+                setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
+            case 'W'+8:
+                object = getMapObject(wallBits[8]);
+                setupObjectBody(object, 0, -0.2f, 1, 0);
+                break;
             case ';':
                 object = getMapObject(R.drawable.grass_yellow, 0, 1f);
                 object.spaceNode.localPosition.offset(0, 0, -1);
@@ -94,6 +150,16 @@ public class MapProvider {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId);
         shape.setPivot(new Point((int) (shape.getWidth() * fx), (int) (shape.getHeight() * fy)));
 
+        SpaceNode node = new SpaceNode();
+        SpaceObject object = new SpaceObject(node);
+        object.shape = shape;
+
+        object.spaceNode.localPosition.set(0, 0, 0);
+
+        return object;
+    }
+
+    public SpaceObject getMapObject(SpriteShape shape) {
         SpaceNode node = new SpaceNode();
         SpaceObject object = new SpaceObject(node);
         object.shape = shape;
