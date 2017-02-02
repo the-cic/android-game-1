@@ -137,7 +137,7 @@ public class GameContent {
         }
 
         // ok for now, but should be in an array of somethings
-        playerObject.updateShape(secondsPerFrame);
+//        playerObject.updateShape(secondsPerFrame);
 
         objectBodySpace.update(secondsPerFrame);
     }

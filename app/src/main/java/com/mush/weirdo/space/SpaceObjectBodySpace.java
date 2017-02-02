@@ -33,6 +33,10 @@ public class SpaceObjectBodySpace {
     }
 
     public void update(double secondsPerFrame) {
+        for (SpaceObject object : objects) {
+            object.updateShape(secondsPerFrame);
+        }
+
         for (SpaceObjectBody body : objectBodies) {
             body.update(secondsPerFrame);
         }

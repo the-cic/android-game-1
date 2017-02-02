@@ -3,7 +3,6 @@ package com.mush.weirdo.map;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.widget.Space;
 
 import com.mush.weirdo.R;
 import com.mush.weirdo.space.SpaceNode;
@@ -11,7 +10,6 @@ import com.mush.weirdo.space.SpaceObject;
 import com.mush.weirdo.sprites.ImageSpriteShape;
 import com.mush.weirdo.sprites.SpriteShape;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -19,57 +17,20 @@ import java.util.ArrayList;
  */
 public class MapProvider {
 
-    private Resources resources;
     public final int chunkLength = 3;
     public final int objectWidth = 18;
     public final int objectHeight = 5;
 
-    // 20 x 10
-    String [] map = new String[]{
-            "T..,....;.T.......T.",
-            ".;...,;......,,.T...",
-            "....;..T....T....,..",
-            "..T...........,,....",
-            ".....BBBBBBBB....T..",
-            ".T...B......B.,....,",
-            "...;.B......B..,;,..",
-            "..B..B......B..,.;;.",
-            ".B..,BBB.BBBB.,.T..;",
-            ".,.T.,,..,;..,,....."
-    };
+    private Resources resources;
+    private MapContentProvider contentProvider;
 
-    public MapProvider(Resources resources1){
+    public MapProvider(Resources resources1) {
         this.resources = resources1;
+        this.contentProvider = new HardcodedMapContentProvider();
     }
 
-    private String getLineChunk(String line, int index) {
-        int start = index * chunkLength;
-        int end = start + chunkLength;
-        if (start < 0) {
-            if (end < 0) {
-                return "";
-            }
-            start = 0;
-        }
-        if (start > line.length()) {
-            return "";
-        }
-        if (end > line.length()) {
-            end = line.length();
-        }
-        return line.substring(start, end);
-    }
-
-    private String[] getMapChunk(int index){
-        String[] chunk = new String[map.length];
-        for (int i=0; i < map.length; i++) {
-            chunk[i] = getLineChunk(map[i], index);
-        }
-        return chunk;
-    }
-
-    public ArrayList<SpaceObject> getChunk(int index){
-        String[] mapChunk = getMapChunk(index);
+    public ArrayList<SpaceObject> getChunk(int index) {
+        String[] mapChunk = contentProvider.getMapChunk(index, chunkLength);
         ArrayList<SpaceObject> objects = new ArrayList<>();
         for (int j = 0; j < mapChunk.length; j++) {
             String mapLine = mapChunk[j];
@@ -88,20 +49,20 @@ public class MapProvider {
     public SpaceObject getMapObject(char c) {
         SpaceObject object = null;
         switch (c) {
-            case 'T' :
+            case 'T':
                 object = getMapObject(R.drawable.tree_fir, 0, 1);
                 setupObjectBody(object, 0.2f, -0.1f, 0.7f, 0);
                 object.spaceNode.localPosition.offset(3, 0, 0);
                 break;
-            case 'B' :
+            case 'B':
                 object = getMapObject(R.drawable.block_2, 0, 1);
                 setupObjectBody(object, 0, -0.2f, 1, 0);
                 break;
-            case ';' :
+            case ';':
                 object = getMapObject(R.drawable.grass_yellow, 0, 1f);
                 object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
-            case ',' :
+            case ',':
                 object = getMapObject(R.drawable.grass_green, 0, 1f);
                 object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
@@ -111,7 +72,7 @@ public class MapProvider {
 
     public SpaceObject getMapObject(int resourceId, float fx, float fy) {
         SpriteShape shape = new ImageSpriteShape(resources, resourceId);
-        shape.setPivot(new Point((int)(shape.getWidth() * fx), (int)(shape.getHeight() * fy)));
+        shape.setPivot(new Point((int) (shape.getWidth() * fx), (int) (shape.getHeight() * fy)));
 
         SpaceNode node = new SpaceNode();
         SpaceObject object = new SpaceObject(node);

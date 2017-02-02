@@ -74,10 +74,10 @@ public class SpaceObject {
         }
     }
 
-    public void update(double secondsPerFrame) {
-        updateShape(secondsPerFrame);
-        updateBody(secondsPerFrame);
-    }
+//    public void update(double secondsPerFrame) {
+//        updateShape(secondsPerFrame);
+//        updateBody(secondsPerFrame);
+//    }
 
     public void updateShape(double secondsPerFrame) {
         if (shape != null) {
@@ -85,10 +85,10 @@ public class SpaceObject {
         }
     }
 
-    public void updateBody(double secondsPerFrame) {
-        if (body != null) {
-            body.update(secondsPerFrame);
-            body.applyPositionUpdate();
-        }
-    }
+//    public void updateBody(double secondsPerFrame) {
+//        if (body != null) {
+//            body.update(secondsPerFrame);
+//            body.applyPositionUpdate();
+//        }
+//    }
 }

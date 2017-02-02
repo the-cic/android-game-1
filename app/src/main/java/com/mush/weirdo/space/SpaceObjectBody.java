@@ -55,10 +55,6 @@ public class SpaceObjectBody {
 
             this.nextGlobalPosition.set(this.node.localToGlobal());
             this.nextGlobalPosition.offset(this.velocityOffset);
-
-//            if (this.objectRepository != null) {
-//                checkCollisions(this.objectRepository.getObstacles());
-//            }
         }
     }
 
