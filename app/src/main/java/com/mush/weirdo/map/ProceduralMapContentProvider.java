@@ -1,5 +1,7 @@
 package com.mush.weirdo.map;
 
+import com.mush.weirdo.util.RandomKey;
+
 /**
  * Created by Cic on 2.2.2017.
  */
@@ -30,27 +32,27 @@ public class ProceduralMapContentProvider implements MapContentProvider {
     }
 
     private void createChunk(char[][] chunk, int index, int chunkWidth, int chunkHeight) {
-        int[] key0 = getKeyForIndex(index);
-        int[] key = new int[]{key0[0], key0[1], key0[2]};
+        RandomKey key0 = getKeyForIndex(index);
+        RandomKey key = new RandomKey(key0.values[0], key0.values[1], key0.values[2]);
 
         int[] val = processKey(key);
         int grass = (val[3] + 1) * 2;
         int trees = val[2];
         for (int i = 0; i < grass; i++) {
-            advanceKey(key);
+            key.advance();
             val = processKey(key);
             int x = val[0] % chunkWidth;
             int y = val[1] % chunkHeight;
             chunk[y][x] = val[2] > 3 ? ',' : ';';
         }
         for (int i = 0; i < trees; i++) {
-            advanceKey(key);
+            key.advance();
             val = processKey(key);
             int x = val[0] % chunkWidth;
             int y = val[1] % chunkHeight;
             chunk[y][x] = 'T';
         }
-        advanceKey(key);
+        key.advance();
         val = processKey(key);
         if (val[2] > 4) {
             int h = val[3] > 3 ? 1 : (val[3] > 1 ? 2 : 3);
@@ -68,6 +70,7 @@ public class ProceduralMapContentProvider implements MapContentProvider {
             makeWall(chunk, x+1, y+1, h+1, false, (char)('W'+4));
             makeWall(chunk, x+2, y+1, h, false, (char)('W'+5));
             makeWall(chunk, x, y+h+1, 1, true, (char)('W'+6));
+//            makeWall(chunk, x+1, y+h+1, 1, true, (char)('W'+7));
             makeWall(chunk, x+2, y+h+1, 1, true, (char)('W'+8));
         }
     }
@@ -88,32 +91,20 @@ public class ProceduralMapContentProvider implements MapContentProvider {
         }
     }
 
-    private int[] processKey(int[] k) {
-        int x = (k[0] >> 8); //& 0x0f;
-        int y = (k[1] >> 8); // & 0x0f;
-        int g = (k[1] >> 3) & 0x07;
-        int e = (k[0] >> 8) & 0x07;
+    private int[] processKey(RandomKey k) {
+        int x = (k.values[0] >> 8); //& 0x0f;
+        int y = (k.values[1] >> 8); // & 0x0f;
+        int g = (k.values[1] >> 3) & 0x07;
+        int e = (k.values[0] >> 8) & 0x07;
 
         return new int[]{x, y, g, e};
     }
 
 
-    private int[] getKeyForIndex(int index) {
-        int[] key = new int[]{0x5a4a, 0x0248, 0xb753, 0xf8a3, 0xc3759a};
-        for (int i = 0; i < index; i++) {
-            advanceKey(key);
-        }
+    private RandomKey getKeyForIndex(int index) {
+        RandomKey key = new RandomKey(0x5a4a, 0x0248, 0xb753, 0xf8a3, 0xc3759a);
+        key.advance(index);
         return key;
     }
-
-    private void advanceKey(int[] key) {
-        int temp = key[0];
-        for (int i = 1; i < key.length; i++) {
-            temp += key[i];
-            key[i - 1] = key[i];
-        }
-        key[key.length - 1] = (int) temp & 0xffff;
-    }
-
 
 }

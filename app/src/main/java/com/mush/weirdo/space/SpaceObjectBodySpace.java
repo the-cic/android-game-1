@@ -14,12 +14,12 @@ public class SpaceObjectBodySpace {
     // Foreground blocking objects' bodies
     private ArrayList<SpaceObjectBody> objectBodies;
 
-    public SpaceObjectBodySpace(){
+    public SpaceObjectBodySpace() {
         objects = new ArrayList<>();
         objectBodies = new ArrayList<>();
     }
 
-    public ArrayList<SpaceObject> getObjects(){
+    public ArrayList<SpaceObject> getObjects() {
         return objects;
     }
 
@@ -62,17 +62,18 @@ public class SpaceObjectBodySpace {
 
     private void checkObjectBodyCollisions() {
         for (SpaceObjectBody body : objectBodies) {
-            boolean blocked = false;
-            for (SpaceObjectBody other : objectBodies) {
-                if (body != other && !blocked) {
-                    if (body.willIntersect(other)) {
-                        blocked = true;
-                        //System.out.println(body.getNode().localPosition + " blocked by "+ other.getNode().localPosition);
+            if (body.isMoving()) {
+                boolean blocked = false;
+                for (SpaceObjectBody other : objectBodies) {
+                    if (body != other && !blocked) {
+                        if (body.willIntersect(other) && other.isSolid()) {
+                            blocked = true;
+                        }
                     }
                 }
-            }
-            if (blocked) {
-                body.clearNextPosition();
+                if (blocked) {
+                    body.clearNextPosition();
+                }
             }
         }
     }

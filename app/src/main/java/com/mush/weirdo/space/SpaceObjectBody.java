@@ -14,11 +14,24 @@ public class SpaceObjectBody {
     private Point3F nextGlobalPosition;
     private Point3F velocityOffset;
     private InputSpaceObjectBodyController controller;
+    private boolean isSolid;
 
-    public SpaceObjectBody(SpaceObject spaceObject, Rect b) {
+    public SpaceObjectBody(SpaceObject spaceObject, Rect b, boolean blocking) {
         this.node = spaceObject.spaceNode;
         this.boundsRect = new Rect(b);
         this.velocity = null;
+        this.isSolid = blocking;
+    }
+
+    public void offsetBounds(int dLeft, int dTop, int dRight, int dBottom){
+        this.boundsRect.left += dLeft;
+        this.boundsRect.top += dTop;
+        this.boundsRect.right += dRight;
+        this.boundsRect.bottom += dBottom;
+    }
+
+    public boolean isSolid(){
+        return isSolid;
     }
 
     public void setController(InputSpaceObjectBodyController c) {

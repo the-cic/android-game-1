@@ -93,7 +93,7 @@ public class GameContent {
         playerObject.shape = new AnimatedSpriteShape(resources, R.drawable.weirdo_spritesheet, 32, 32, new int[]{1, 4});
         playerObject.shape.setPivot(new Point(playerObject.shape.getWidth() / 2, playerObject.shape.getHeight()));
 
-        mapProvider.setupObjectBody(playerObject, -0.18f, -0.1f, 0.18f, 0);
+        playerObject.setupBodyRelativeToShape(-0.18f, -0.1f, 0.18f, 0, true);
         playerObject.body.setController(new InputSpaceObjectBodyController(controls, playerObject));
 
         objectBodySpace.getObjects().add(playerObject);
@@ -189,6 +189,11 @@ public class GameContent {
 
         for (SpaceObject spaceObject : objectBodySpace.getObjects()) {
             spaceObject.draw(canvas, isometricProjection);
+        }
+        if (SpaceObject.shouldDrawMarkers) {
+            for (SpaceObject spaceObject : objectBodySpace.getObjects()) {
+                spaceObject.drawMarkers(canvas);
+            }
         }
     }
 

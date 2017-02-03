@@ -64,14 +64,17 @@ public class BackgroundObjects {
     public void draw(Canvas canvas) {
         for (SpaceObject spaceObject : fixedBgObjects) {
             spaceObject.draw(canvas, null);
+            spaceObject.drawMarkers(canvas);
         }
 
         for (SpaceObject spaceObject : tilingBgObjects) {
             spaceObject.draw(canvas, tileProjection);
+            spaceObject.drawMarkers(canvas);
         }
 
         for (SpaceObject spaceObject : parallaxObjects) {
             spaceObject.draw(canvas, parallaxProjection);
+            spaceObject.drawMarkers(canvas);
         }
     }
 

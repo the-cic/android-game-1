@@ -20,19 +20,38 @@ public class SpaceObject {
     private final PointF drawPoint = new PointF();
     private Paint paint;
     private boolean flipShape = false;
-    public static boolean drawMarkers = true;
+    public static boolean shouldDrawMarkers = true;
 
     public SpaceObject(SpaceNode node) {
         spaceNode = node;
 
         paint = new Paint();
-        paint.setColor(Color.GREEN);
+        paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setAlpha(50);
+        paint.setAlpha(75);
     }
 
-    public void setupBody(Rect bounds) {
-        body = new SpaceObjectBody(this, bounds);
+    public void setupBody(Rect bounds, boolean isSolid) {
+        body = new SpaceObjectBody(this, bounds, isSolid);
+    }
+
+    /**
+     * Try to limit values to 0, 0.5 and 1
+     *
+     * @param fl
+     * @param ft
+     * @param fr
+     * @param fb
+     */
+    public void setupBodyRelativeToShape(float fl, float ft, float fr, float fb, boolean isSolid){
+        if (shape != null) {
+            body = new SpaceObjectBody(this, new Rect(
+                    (int) (shape.getWidth() * fl),
+                    (int) (shape.getHeight() * ft),
+                    (int) (shape.getWidth() * fr),
+                    (int) (shape.getHeight() * fb)),
+                    isSolid);
+        }
     }
 
     public void setFlipShape(boolean f) {
@@ -61,8 +80,10 @@ public class SpaceObject {
                 shape.draw(drawPoint.x, drawPoint.y, canvas);
             }
         }
+    }
 
-        if (drawMarkers) {
+    public void drawMarkers(Canvas canvas){
+        if (shouldDrawMarkers) {
             canvas.drawCircle((float) drawPoint.x, (float) drawPoint.y, 1, paint);
 
             if (body != null) {
@@ -74,21 +95,10 @@ public class SpaceObject {
         }
     }
 
-//    public void update(double secondsPerFrame) {
-//        updateShape(secondsPerFrame);
-//        updateBody(secondsPerFrame);
-//    }
-
     public void updateShape(double secondsPerFrame) {
         if (shape != null) {
             shape.update(secondsPerFrame);
         }
     }
 
-//    public void updateBody(double secondsPerFrame) {
-//        if (body != null) {
-//            body.update(secondsPerFrame);
-//            body.applyPositionUpdate();
-//        }
-//    }
 }
