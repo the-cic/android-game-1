@@ -1,6 +1,7 @@
 package com.mush.weirdo.space;
 
 import com.mush.weirdo.GameContent;
+import com.mush.weirdo.map.MapProvider;
 
 import java.util.ArrayList;
 
@@ -14,9 +15,13 @@ public class SpaceObjectBodySpace {
     // Foreground blocking objects' bodies
     private ArrayList<SpaceObjectBody> objectBodies;
 
-    public SpaceObjectBodySpace() {
+    // Group objects by int z
+
+    public SpaceObjectBodySpace(MapProvider mapProvider) {
         objects = new ArrayList<>();
         objectBodies = new ArrayList<>();
+        // use mapProvider to create z-line list of objects
+        // how do we update lists for an object that moved?
     }
 
     public ArrayList<SpaceObject> getObjects() {
@@ -44,6 +49,8 @@ public class SpaceObjectBodySpace {
         checkObjectBodyCollisions();
 
         for (SpaceObjectBody body : objectBodies) {
+            // maybe check z line change here?
+            // Also, velocity and position update should be part of object, not body
             body.applyPositionUpdate();
 
             // this is just for player, move it
@@ -76,6 +83,10 @@ public class SpaceObjectBodySpace {
                 }
             }
         }
+    }
+
+    private int getObjectZIndex(SpaceObject object){
+        return 0;
     }
 
 }

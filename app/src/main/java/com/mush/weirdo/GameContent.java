@@ -76,9 +76,9 @@ public class GameContent {
         rootNode.localPosition.set(0, 0, 0);
 
         backgroundObjects = new BackgroundObjects(resources, rootNode, WIDTH, HEIGHT);
-        objectBodySpace = new SpaceObjectBodySpace();
 
         mapProvider = new MapProvider(resources);
+        objectBodySpace = new SpaceObjectBodySpace(mapProvider);
 
         SpaceNode mapNode = new SpaceNode();
         mapNode.addToNode(rootNode);
