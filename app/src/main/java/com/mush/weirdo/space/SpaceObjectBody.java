@@ -1,6 +1,9 @@
 package com.mush.weirdo.space;
 
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.util.Log;
 
 /**
  * Created by mirko on 20/01/2017.
@@ -23,14 +26,14 @@ public class SpaceObjectBody {
         this.isSolid = blocking;
     }
 
-    public void offsetBounds(int dLeft, int dTop, int dRight, int dBottom){
+    public void offsetBounds(int dLeft, int dTop, int dRight, int dBottom) {
         this.boundsRect.left += dLeft;
         this.boundsRect.top += dTop;
         this.boundsRect.right += dRight;
         this.boundsRect.bottom += dBottom;
     }
 
-    public boolean isSolid(){
+    public boolean isSolid() {
         return isSolid;
     }
 
@@ -94,7 +97,7 @@ public class SpaceObjectBody {
         return !velocity.isZero();
     }
 
-    public void clearNextPosition(){
+    public void clearNextPosition() {
         this.velocityOffset.set(0, 0, 0);
     }
 
@@ -104,10 +107,10 @@ public class SpaceObjectBody {
             return false;
         }
 
-        Rect nextGlobalBounds = new Rect(boundsRect);
-        nextGlobalBounds.offset((int) nextGlobalPosition.x, (int) nextGlobalPosition.z);
+        RectF nextGlobalBounds = new RectF(boundsRect);
+        nextGlobalBounds.offset(nextGlobalPosition.x, nextGlobalPosition.z);
 
-        Rect otherGlobalBounds = new Rect(other.boundsRect);
+        RectF otherGlobalBounds = new RectF(other.boundsRect);
 
         if (other.isMoving()) {
             Point3F otherNextGlobalPosition = other.getNextGlobalPosition();
@@ -117,7 +120,40 @@ public class SpaceObjectBody {
             otherGlobalBounds.offset((int) otherGlobalPosition.x, (int) otherGlobalPosition.z);
         }
 
-        return nextGlobalBounds.intersects(otherGlobalBounds.left, otherGlobalBounds.top, otherGlobalBounds.right, otherGlobalBounds.bottom);
+//        return nextGlobalBounds.intersects(otherGlobalBounds.left, otherGlobalBounds.top, otherGlobalBounds.right, otherGlobalBounds.bottom);
+
+        PointF collisionOffset = collide(nextGlobalBounds, otherGlobalBounds);
+        if (collisionOffset != null) {
+//            Log.i("COL", collisionOffset.toString());
+            this.velocityOffset.offset(collisionOffset.x, 0, collisionOffset.y);
+            this.nextGlobalPosition.offset(collisionOffset.x, 0, collisionOffset.y);
+            return true;
+        } else {
+//            Log.i("COL", "no col");
+            return false;
+        }
     }
 
+
+    public static PointF collide(RectF a, RectF b) {
+        float bRight = b.right - a.left;
+        float aRight = a.right - b.left;
+        float bBottom = b.bottom - a.top;
+        float aBottom = a.bottom - b.top;
+
+        if (bRight > 0 && aRight > 0 && bBottom > 0 && aBottom > 0) {
+            float dx = aRight < bRight ? -aRight : bRight;
+            float dy = aBottom < bBottom ? -aBottom : bBottom;
+            boolean dxGTdy = Math.abs(dx) > Math.abs(dy);
+            return new PointF(
+                    dxGTdy ? 0 : dx,
+                    dxGTdy ? dy : 0
+            );
+        } else {
+            return null;
+        }
+
+
+        //return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    }
 }

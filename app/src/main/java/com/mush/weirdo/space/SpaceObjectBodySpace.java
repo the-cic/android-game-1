@@ -1,5 +1,7 @@
 package com.mush.weirdo.space;
 
+import android.util.Log;
+
 import com.mush.weirdo.GameContent;
 import com.mush.weirdo.map.MapProvider;
 
@@ -71,15 +73,17 @@ public class SpaceObjectBodySpace {
         for (SpaceObjectBody body : objectBodies) {
             if (body.isMoving()) {
                 boolean blocked = false;
+
                 for (SpaceObjectBody other : objectBodies) {
-                    if (body != other && !blocked) {
+                    if (body != other /*&& !blocked*/) {
                         if (body.willIntersect(other) && other.isSolid()) {
                             blocked = true;
                         }
                     }
                 }
                 if (blocked) {
-                    body.clearNextPosition();
+//                    Log.i("CHECK", "blocked");
+                    //body.clearNextPosition();
                 }
             }
         }
