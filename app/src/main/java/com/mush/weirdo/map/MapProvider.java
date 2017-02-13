@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 public class MapProvider {
 
-    public final int chunkWidth = 5;
+    public final int chunkWidth = 10;
     public final int chunkHeight = 10;
     public final int objectWidth = 18;
     public final int objectHeight = 5;
@@ -35,8 +35,8 @@ public class MapProvider {
 //        this.contentProvider = new HardcodedMapContentProvider();
         this.contentProvider = new ProceduralMapContentProvider();
 
-        Bitmap wallsJelly = BitmapFactory.decodeResource(resources, R.drawable.walls);
-        BitmapFrames frames = new BitmapFrames(wallsJelly, 18, 20, 9);
+        Bitmap walls = BitmapFactory.decodeResource(resources, R.drawable.walls);
+        BitmapFrames frames = new BitmapFrames(walls, 18, 20, 9);
         wallBits = new SpriteShape[9];
         for (int i = 0; i < 9; i++) {
             SpriteShape shape = new ImageSpriteShape(frames.getFrame(i));
@@ -63,7 +63,10 @@ public class MapProvider {
 
         System.out.println("Map:");
         for (int j = 0; j < lines.length; j++) {
-            System.out.println(lines[j]);
+            for (int i = 0; i < lines[j].length(); i++) {
+                System.out.print((char)(lines[j].charAt(i) & 0x00ff));
+            }
+            System.out.println();
         }
     }
 
@@ -78,7 +81,7 @@ public class MapProvider {
                 SpaceObject object = getMapObject(c);
                 if (object != null) {
                     object.spaceNode.localPosition.offset(i * objectWidth, 0, j * objectHeight);
-                    if (c == 'T' || c == ',' || c == ';') {
+                    if (c == 'T' || (char)(c & 0x00FF) == ',' ) {
                         object.spaceNode.localPosition.offset((randomKey.values[0] % 5) - 2, 0, (randomKey.values[0] % 2) - 1);
                         randomKey.advance();
                     }
@@ -105,65 +108,65 @@ public class MapProvider {
                 object.setupBodyRelativeToShape(0, -0.2f, 1, 0, true);
                 break;
 
-            case 'W'+0:
+            case 'W' + 0x0000:
                 object = getMapObject(wallBits[0]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -1, 0, 4);
                 break;
-            case 'W'+1:
+            case 'W' + 0x0100:
                 object = getMapObject(wallBits[1]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -1, 0, 1);
                 break;
-            case 'W'+2:
+            case 'W' + 0x0200:
                 object = getMapObject(wallBits[2]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -1, 0, 4);
                 break;
 
-            case 'W'+3:
+            case 'W' + 0x0300:
                 object = getMapObject(wallBits[3]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 object.setupBodyRelativeToShape(0, 0, 0, 0, true);
                 object.body.offsetBounds(0, -1, 5, 4);
                 break;
-            case 'W'+4:
+            case 'w' + 0x0400:
                 object = getMapObject(wallBits[4]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 //setupObjectBody(object, 0, -0.2f, 1, 0);
                 break;
-            case 'W'+5:
+            case 'W' + 0x0500:
                 object = getMapObject(wallBits[5]);
                 object.spaceNode.localPosition.set(0, 0, -4);
                 object.setupBodyRelativeToShape(1, 0, 1, 0, true);
                 object.body.offsetBounds(-5, -1, 0, 4);
                 break;
 
-            case 'W'+6:
+            case 'W' + 0x0600:
                 object = getMapObject(wallBits[6]);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -5, 0, 0);
                 break;
-            case 'W'+7:
+            case 'W' + 0x0700:
                 object = getMapObject(wallBits[7]);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -5, 0, 0);
                 break;
-            case 'W'+8:
+            case 'W' + 0x0800:
                 object = getMapObject(wallBits[8]);
                 object.setupBodyRelativeToShape(0, 0, 1, 0, true);
                 object.body.offsetBounds(0, -5, 0, 0);
                 break;
-            case ';':
-                object = getMapObject(R.drawable.grass_yellow);
+            case ',' + 0x0000:
+                object = getMapObject(R.drawable.grass_green);
                 setObjectShapePivotProportional(object, 0, 1);
                 object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
-            case ',':
-                object = getMapObject(R.drawable.grass_green);
+            case ',' + 0x0100:
+                object = getMapObject(R.drawable.grass_yellow);
                 setObjectShapePivotProportional(object, 0, 1);
                 object.spaceNode.localPosition.offset(0, 0, -1);
                 break;
@@ -194,7 +197,7 @@ public class MapProvider {
         return object;
     }
 
-    public void setObjectShapePivotProportional(SpaceObject object, float fx, float fy){
+    public void setObjectShapePivotProportional(SpaceObject object, float fx, float fy) {
         SpriteShape shape = object.shape;
         shape.setPivot(new Point((int) (shape.getWidth() * fx), (int) (shape.getHeight() * fy)));
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 /**
  * Separated cosmetic background bits
- *
+ * <p/>
  * Created by Cic on 1.2.2017.
  */
 public class BackgroundObjects {
@@ -49,13 +49,13 @@ public class BackgroundObjects {
         tilingBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.ground), rootNode, 0, GROUND_Y, 0));
         tilingBgObjects.add(createSpaceObject(createSpaceObject(resources, R.drawable.ground), rootNode, -width, GROUND_Y, 0));
 
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_far), rootNode, 180 * 2, BASE, 40));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_far), rootNode, 180 * 1, BASE, 32));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_near), rootNode, 180 * 6, BASE, 30));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 2.5f, BASE - 90, 22));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 180 * 1, BASE - 90, 20));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 180 * 1.8f, BASE, 15));
-        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 180, BASE, 10));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_far), rootNode, 50 * 180 * 2, BASE, 40 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_far), rootNode, 50 * 180 * 1, BASE, 32 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_mid_near), rootNode, 50 * 180 * 6, BASE, 30 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 35 * 180 * 2.5f, BASE - 90 * 10, 22 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.cloud), rootNode, 25 * 180 * 1, BASE - 90 * 10, 20 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.mountains_near), rootNode, 5 * 180 * 1.8f, BASE, 15 * 3));
+        parallaxObjects.add(createSpaceObject(createGroundSpaceObject(resources, R.drawable.trees_far), rootNode, 5 * 180, BASE, 10 * 3));
 
         parallaxProjection = new ParallaxPositionProjection(10, new Point3F(0, BASE, 0));
         tileProjection = new TilingPositionProjection(width, height);

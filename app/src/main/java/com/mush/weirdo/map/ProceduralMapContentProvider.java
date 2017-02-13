@@ -1,5 +1,7 @@
 package com.mush.weirdo.map;
 
+import android.util.Log;
+
 import com.mush.weirdo.util.RandomKey;
 
 /**
@@ -37,13 +39,13 @@ public class ProceduralMapContentProvider implements MapContentProvider {
 
         int[] val = processKey(key);
         int grass = (val[3] + 1) * 2;
-        int trees = val[2];
+        int trees = val[2] * 2;
         for (int i = 0; i < grass; i++) {
             key.advance();
             val = processKey(key);
             int x = val[0] % chunkWidth;
             int y = val[1] % chunkHeight;
-            chunk[y][x] = val[2] > 3 ? ',' : ';';
+            chunk[y][x] = val[2] > 3 ? ',' : (char) (',' + 0x0100);
         }
         for (int i = 0; i < trees; i++) {
             key.advance();
@@ -55,23 +57,23 @@ public class ProceduralMapContentProvider implements MapContentProvider {
         key.advance();
         val = processKey(key);
         if (val[2] > 4) {
+            int w = val[4] > 3 ? 1 : (val[4] > 1 ? 2 : 3);
             int h = val[3] > 3 ? 1 : (val[3] > 1 ? 2 : 3);
-            int x = val[0] % (chunkWidth - 2);
-            int y = 1 + (val[1] % (chunkHeight - (h+2)));
+            int x = val[0] % (chunkWidth - w - 2);
+            int y = 1 + (val[1] % (chunkHeight - (h + 2)));
 
-//            makeWall(chunk, x, y, 3, true, 'W');
-//            makeWall(chunk, x, y + 1, 1, true, 'W');
-//            makeWall(chunk, x + 2, y + 1, 1, true, 'W');
-
-            makeWall(chunk, x, y, 1, true, (char)('W'+0));
-            makeWall(chunk, x+1, y, 1, true, (char)('W'+1));
-            makeWall(chunk, x+2, y, 1, true, (char)('W'+2));
-            makeWall(chunk, x, y+1, h, false, (char)('W'+3));
-            makeWall(chunk, x+1, y+1, h+1, false, (char)('W'+4));
-            makeWall(chunk, x+2, y+1, h, false, (char)('W'+5));
-            makeWall(chunk, x, y+h+1, 1, true, (char)('W'+6));
-//            makeWall(chunk, x+1, y+h+1, 1, true, (char)('W'+7));
-            makeWall(chunk, x+2, y+h+1, 1, true, (char)('W'+8));
+            makeWall(chunk, x, y, 1, true, (char) ('W' + 0x0000));
+            makeWall(chunk, x + 1, y, w, true, (char) ('W' + 0x0100));
+            makeWall(chunk, x + 1 + w, y, 1, true, (char) ('W' + 0x0200));
+            makeWall(chunk, x, y + 1, h, false, (char) ('W' + 0x0300));
+            for (int i = 0; i < w; i++) {
+                makeWall(chunk, x + 1 + i, y + 1, h + 1-1, false, (char) ('w' + 0x0400));
+            }
+            makeWall(chunk, x + 1 + w, y + 1, h, false, (char) ('W' + 0x0500));
+            makeWall(chunk, x, y + h + 1, 1, true, (char) ('W' + 0x0600));
+            makeWall(chunk, x + 1, y + h + 1, w, true, (char)('W' + 0x0700));
+            makeWall(chunk, x + 1 + w, y + h + 1, 1, true, (char) ('W' + 0x0800));
+            makeWall(chunk, x + 1 + 0, y + h + 1, 1, true, (char) ('w' + 0x0400));
         }
     }
 
@@ -96,8 +98,9 @@ public class ProceduralMapContentProvider implements MapContentProvider {
         int y = (k.values[1] >> 8); // & 0x0f;
         int g = (k.values[1] >> 3) & 0x07;
         int e = (k.values[0] >> 8) & 0x07;
+        int f = (k.values[2] >> 0) & 0x07;
 
-        return new int[]{x, y, g, e};
+        return new int[]{x, y, g, e, f};
     }
 
 
