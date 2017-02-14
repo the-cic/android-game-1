@@ -15,7 +15,7 @@ public class SpaceNode {
 
     public SpaceNode() {
         localPosition = new Point3F();
-        globalPosition = localPosition;
+        globalPosition = new Point3F(localPosition);
         invalidateGlobalPosition();
     }
 
@@ -74,14 +74,19 @@ public class SpaceNode {
 
     public Point3F localToGlobal() {
         if (!isGlobalPositionValid) {
-            globalPosition = new Point3F(localPosition);
+//            globalPosition = new Point3F(localPosition);
+            globalPosition.set(localPosition);
 
             SpaceNode ancestor = parent;
 
-            while (ancestor != null) {
-                globalPosition.offset(ancestor.localPosition);
-                ancestor = ancestor.getParent();
+            if (ancestor != null) {
+                globalPosition.offset(ancestor.localToGlobal());
             }
+
+//            while (ancestor != null) {
+//                globalPosition.offset(ancestor.localPosition);
+//                ancestor = ancestor.getParent();
+//            }
 
             isGlobalPositionValid = true;
         }
@@ -89,7 +94,26 @@ public class SpaceNode {
         return globalPosition;
     }
 
-    public void invalidateGlobalPosition(){
+    private void invalidateGlobalPosition(){
         isGlobalPositionValid = false;
+    }
+
+    public void invalidateGlobalPositionTree(){
+        invalidateGlobalPositionTree(false);
+    }
+
+    protected void invalidateGlobalPositionTree(boolean rootChanged){
+        boolean dirty = rootChanged || this.localPosition.isDirty();
+        this.localPosition.clearDirty();
+
+        if (dirty) {
+            invalidateGlobalPosition();
+        }
+
+        if (subNodes != null) {
+            for (SpaceNode node : subNodes) {
+                node.invalidateGlobalPositionTree(dirty);
+            }
+        }
     }
 }

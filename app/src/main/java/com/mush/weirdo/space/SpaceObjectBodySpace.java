@@ -57,14 +57,19 @@ public class SpaceObjectBodySpace {
 
             // this is just for player, move it
             // use global position?
-            if (body.getNode().localPosition.z < GameContent.MAP_TOP_Z) {
-                body.getNode().localPosition.z = GameContent.MAP_TOP_Z;
+            Point3F bodyLocalPosition = body.getNode().localPosition;
+
+            if (bodyLocalPosition.z < GameContent.MAP_TOP_Z) {
+//                bodyLocalPosition.z = GameContent.MAP_TOP_Z;
+                bodyLocalPosition.set(bodyLocalPosition.x, bodyLocalPosition.y, GameContent.MAP_TOP_Z);
             }
-            if (body.getNode().localPosition.z > GameContent.MAP_BOTTOM_Z) {
-                body.getNode().localPosition.z = GameContent.MAP_BOTTOM_Z;
+            if (bodyLocalPosition.z > GameContent.MAP_BOTTOM_Z) {
+//                bodyLocalPosition.z = GameContent.MAP_BOTTOM_Z;
+                bodyLocalPosition.set(bodyLocalPosition.x, bodyLocalPosition.y, GameContent.MAP_BOTTOM_Z);
             }
-            if (body.getNode().localPosition.x < 0) {
-                body.getNode().localPosition.x = 0;
+            if (bodyLocalPosition.x < 0) {
+                bodyLocalPosition.x = 0;
+                bodyLocalPosition.set(0, bodyLocalPosition.y, bodyLocalPosition.z);
             }
         }
     }

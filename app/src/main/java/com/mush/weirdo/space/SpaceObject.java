@@ -60,7 +60,7 @@ public class SpaceObject {
 
     public void draw(Canvas canvas, PositionProjection projection) {
         Point3F globalPosition = spaceNode.localToGlobal();
-        spaceNode.invalidateGlobalPosition();
+        //spaceNode.invalidateGlobalPosition();
         if (projection != null) {
             projection.transform(globalPosition, drawPoint);
         } else {

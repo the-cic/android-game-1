@@ -179,6 +179,8 @@ public class GameContent {
 
     private void drawContent(Canvas canvas) {
         rootNode.localPosition.set(-pan.getValue(), 0, 0);
+//        rootNode.invalidateGlobalPosition();
+        rootNode.invalidateGlobalPositionTree();
 
         backgroundObjects.draw(canvas);
 

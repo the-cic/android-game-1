@@ -11,6 +11,7 @@ public class Point3F implements Parcelable {
     public float x;
     public float y;
     public float z;
+    private boolean dirty = true;
 
     public Point3F() {}
 
@@ -26,6 +27,14 @@ public class Point3F implements Parcelable {
         this.z = p.z;
     }
 
+    public final boolean isDirty(){
+        return dirty;
+    }
+
+    public final void clearDirty(){
+        dirty = false;
+    }
+
     /**
      * Set the point's x and y coordinates
      */
@@ -33,6 +42,7 @@ public class Point3F implements Parcelable {
         this.x = x;
         this.y = y;
         this.z = z;
+        this.dirty = true;
     }
 
     /**
@@ -42,30 +52,35 @@ public class Point3F implements Parcelable {
         this.x = p.x;
         this.y = p.y;
         this.z = p.z;
+        this.dirty = true;
     }
 
     public final void negate() {
         x = -x;
         y = -y;
         z = -z;
+        this.dirty = true;
     }
 
     public final void offset(float dx, float dy, float dz) {
         x += dx;
         y += dy;
         z += dz;
+        this.dirty = true;
     }
 
     public final void offset(Point3F p) {
         x += p.x;
         y += p.y;
         z += p.z;
+        this.dirty = true;
     }
 
     public final void scale(float s) {
         x *= s;
         y *= s;
         z *= s;
+        this.dirty = true;
     }
     /**
      * Returns true if the point's coordinates equal (x,y)
